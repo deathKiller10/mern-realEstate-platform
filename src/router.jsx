@@ -9,6 +9,8 @@ import OwnerLogin from "./pages/OwnerLogin";
 import Login from "./pages/Login";
 import BuyerRegister from "./pages/BuyerRegister";
 import OwnerRegister from "./pages/OwnerRegister";
+import OwnerDetails from "./pages/OwnerDetails";
+//import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 function Layout() {
   return (
     <div>
@@ -32,6 +34,8 @@ export const router = createBrowserRouter([
       { path: "ownerlogin", Component: OwnerLogin },
       { path: "buyerregister", Component: BuyerRegister },
       { path: "ownerregister", Component: OwnerRegister },
+      {path:"ownerdetails", Component:OwnerDetails},
+      //{path:"ownerprotectedroute", Component:OwnerProtectedRoute},
     ],
   },
 ]);

@@ -35,7 +35,7 @@ function OwnerLogin() {
 
     login(email);
     alert("Login Successful!");
-    navigate("/");
+    navigate("/ownerdetails");
   };
 
   return (
