@@ -3,11 +3,23 @@ import { Navigate } from "react-router-dom";
 import { AuthContext } from "../context/Authcontext";
 
 export default function OwnerProtectedRoute({ children }) {
+
   const { user } = useContext(AuthContext);
 
-  // Not logged in
+  // not logged in
   if (!user) {
+
     return <Navigate to="/ownerlogin" replace />;
+
   }
+
+  // logged in but not owner
+  if (user.role !== "owner") {
+
+    return <Navigate to="/" replace />;
+
+  }
+
   return children;
+
 }

@@ -17,26 +17,44 @@ function BuyerLogin() {
     });
   };
 
-  const validatechange = () => {
-    const { email, password } = formdata;
+  const validatechange = async () => {
+  const { email, password } = formdata;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("Invalid email");
+    return;
+  }
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      }
+    );
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^[A-Za-z0-9]{8,}$/;
-
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message);
       return;
     }
 
-    if (!passwordRegex.test(password)) {
-      alert("Password must be at least 8 characters and contain only letters (A-Z, a-z) and numbers (0-9). No special characters allowed.");
-      return;
-    }
 
-    login(email);
-    alert("Login Successful!");
+    login(data.user, data.token);
+    alert("Login Successful");
     navigate("/");
-  };
+  }
+  catch {
+    alert("Server error");
+  }
+
+};
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">

@@ -14,31 +14,43 @@ function BuyerRegister() {
          [d.target.name]: d.target.value,
        });
      }; 
-    const message = () => {
-      const { name, mobile, email, password } = formdata;
+    
+const navigate = useNavigate();
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const passwordRegex = /^[A-Za-z0-9]{8,}$/;
-
-      if (!name || !mobile || !email || !password) {
-        alert("Please fill all the details");
-        return;
+const message = async () => {
+  const { name, mobile, email, password } = formdata;
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/auth/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          mobile,
+          email,
+          password,
+          role: "buyer"
+        })
       }
+    );
 
-      if (!emailRegex.test(email.trim())) {
-        alert("Please enter a valid email address.");
-        return;
-      }
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message);
+      return;
+    }
 
-      if (!passwordRegex.test(password)) {
-        alert(
-          "Password must be at least 8 characters and contain only letters and numbers. No special characters allowed."
-        );
-        return;
-      }
+    alert("Registered successfully");
+    navigate("/buyerlogin");
+  }
+  catch {
+    alert("Server error");
+  }
 
-      alert("Registered Successfully!");
-    };
+};
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
 

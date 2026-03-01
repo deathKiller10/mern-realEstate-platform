@@ -1,44 +1,74 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-function BuyerRegister() {
-   const [formdata, setForm] = useState({
-       name: "",
-       mobile: "",
-       email: "",
-       password: "",
-     });
-   
-     const handlechange = (d) => {
-       setForm({
-         ...formdata,
-         [d.target.name]: d.target.value,
-       });
-     }; 
-    const message = () => {
-      const { name, mobile, email, password } = formdata;
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const passwordRegex = /^[A-Za-z0-9]{8,}$/;
+function OwnerRegister() {
 
-      if (!name || !mobile || !email || !password) {
-        alert("Please fill all the details");
+  const navigate = useNavigate();
+
+  const [formdata, setForm] = useState({
+    name: "",
+    mobile: "",
+    email: "",
+    password: "",
+  });
+
+  const handlechange = (d) => {
+
+    setForm({
+      ...formdata,
+      [d.target.name]: d.target.value,
+    });
+
+  };
+
+  const message = async () => {
+
+    const { name, mobile, email, password } = formdata;
+
+    if (!name || !mobile || !email || !password) {
+      alert("Please fill all details");
+      return;
+    }
+
+    try {
+
+      const res = await fetch(
+        "http://localhost:5000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name,
+            mobile,
+            email,
+            password,
+            role: "owner"
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
         return;
       }
 
-      if (!emailRegex.test(email.trim())) {
-        alert("Please enter a valid email address.");
-        return;
-      }
+      alert("Registered successfully");
 
-      if (!passwordRegex.test(password)) {
-        alert(
-          "Password must be at least 8 characters and contain only letters and numbers. No special characters allowed."
-        );
-        return;
-      }
+      navigate("/ownerlogin");
 
-      alert("Registered Successfully!");
-    };
+    }
+    catch {
+
+      alert("Server error");
+
+    }
+
+  };
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
 
@@ -48,53 +78,27 @@ function BuyerRegister() {
           Property Owner Register
         </h2>
 
-        <input
-          type="text"
-          name="name"
-          value={formdata.name}
-          placeholder="Enter full name"
-          className="w-full border p-3 mb-4 rounded" onChange={handlechange}
-        /><br></br><br></br>
+        <input name="name" placeholder="Name" onChange={handlechange} />
 
-        <input
-          type="text"
-          name="mobile"
-          value={formdata.mobile}
-          placeholder="Mobile No."
-          className="w-full border p-3 mb-4 rounded" onChange={handlechange}
-        /><br></br><br></br>
+        <input name="mobile" placeholder="Mobile" onChange={handlechange} />
 
-        <input
-          type="email"
-          name="email"
-          value={formdata.email}
-          placeholder="Email"
-          className="w-full border p-3 mb-4 rounded" onChange={handlechange}
-        /><br></br><br></br>
+        <input name="email" placeholder="Email" onChange={handlechange} />
 
-        <input
-          type="password"
-          name="password"
-          value={formdata.password}
-          placeholder="Password"
-          className="w-full border p-3 mb-4 rounded" onChange={handlechange}
-        /><br></br><br></br>
+        <input name="password" placeholder="Password" onChange={handlechange} />
 
-        <button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded" onClick={message}>
+        <button onClick={message}>
           Register
         </button>
 
-        <p className="text-center mt-4">
-          Existing user?{" "}
-          <NavLink
-            to="/ownerlogin"
-            className="text-green-500 font-medium"
-          >
-            Login
-          </NavLink>
-        </p>
+        <NavLink to="/ownerlogin">
+          Login
+        </NavLink>
+
       </div>
+
     </div>
   );
+
 }
-export default BuyerRegister
+
+export default OwnerRegister;

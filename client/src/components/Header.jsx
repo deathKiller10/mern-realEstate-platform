@@ -5,7 +5,8 @@ import logo from "../assets/NexEstate.png";
 
 export default function Header() {
   const { user, logout } = useContext(AuthContext);
-  const displayName = user? user.split("@")[0].replace(/[0-9]/g, ""): "";
+  // const displayName = user? user.split("@")[0].replace(/[0-9]/g, ""): "";
+  const displayName = user?.name || "";
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
