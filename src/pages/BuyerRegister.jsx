@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 function BuyerRegister() {
+  const navigate = useNavigate();  
    const [formdata, setForm] = useState({
        name: "",
        mobile: "",
@@ -38,6 +39,7 @@ function BuyerRegister() {
       }
 
       alert("Registered Successfully!");
+      navigate("/");
     };
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">

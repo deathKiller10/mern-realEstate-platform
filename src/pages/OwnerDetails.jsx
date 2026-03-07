@@ -1,6 +1,7 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export default function AddProperty() {
+  const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     propertyName: "",
     address: "",
@@ -23,7 +24,8 @@ export default function AddProperty() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Property Details Submitted!");
+    alert("Property Details Submitted!"); 
+    navigate("/");
   };
 
   return (

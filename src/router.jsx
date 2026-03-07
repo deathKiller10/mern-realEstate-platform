@@ -10,12 +10,15 @@ import Login from "./pages/Login";
 import BuyerRegister from "./pages/BuyerRegister";
 import OwnerRegister from "./pages/OwnerRegister";
 import OwnerDetails from "./pages/OwnerDetails";
+
+import ChatWindow from './components/chats/ChatWindow';
 //import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 function Layout() {
   return (
     <div>
         <Header />
         <div style={{ minHeight: "70vh", padding: "20px" }}><Outlet /></div>
+        <ChatWindow />
         <Footer /> 
     </div>
   );
