@@ -3,7 +3,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 function BuyerRegister() {
   const navigate = useNavigate();  
    const [formdata, setForm] = useState({
-       name: "",
+       fname: "",
+       lname: "",
        mobile: "",
        email: "",
        password: "",
@@ -16,12 +17,12 @@ function BuyerRegister() {
        });
      }; 
     const message = () => {
-      const { name, mobile, email, password } = formdata;
+      const { fname, lname, mobile, email, password } = formdata;
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const passwordRegex = /^[A-Za-z0-9]{8,}$/;
 
-      if (!name || !mobile || !email || !password) {
+      if (!fname || !lname || !mobile || !email || !password) {
         alert("Please fill all the details");
         return;
       }
@@ -33,13 +34,23 @@ function BuyerRegister() {
 
       if (!passwordRegex.test(password)) {
         alert(
-          "Password must be at least 8 characters and contain only letters and numbers. No special characters allowed."
+          "Password must be at least 8 characters and contain only letters and numbers."
         );
         return;
       }
 
+      const userData = {
+        fname,
+        lname,
+        mobile,
+        email,
+        password
+      };
+
+      localStorage.setItem("owner", JSON.stringify(userData));
+
       alert("Registered Successfully!");
-      navigate("/ownerdetails");
+      navigate("/ownerdetails")
     };
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
@@ -50,11 +61,19 @@ function BuyerRegister() {
           Property Owner Register
         </h2>
 
+         <input
+          type="text"
+          name="fname"
+          value={formdata.fname}
+          placeholder="First name"
+          className="w-full border p-3 mb-4 rounded" onChange={handlechange}
+        /><br></br><br></br>
+
         <input
           type="text"
-          name="name"
-          value={formdata.name}
-          placeholder="Enter full name"
+          name="lname"
+          value={formdata.lname}
+          placeholder="Last name"
           className="w-full border p-3 mb-4 rounded" onChange={handlechange}
         /><br></br><br></br>
 

@@ -29,13 +29,28 @@ function BuyerLogin() {
     }
 
     if (!passwordRegex.test(password)) {
-      alert("Password must be at least 8 characters and contain only letters (A-Z, a-z) and numbers (0-9). No special characters allowed.");
+      alert(
+        "Password must be at least 8 characters and contain only letters and numbers."
+      );
       return;
     }
 
-    login(email);
-    alert("Login Successful!");
-    navigate("/");
+    // Get stored user from localStorage
+    const user = JSON.parse(localStorage.getItem("buyer"));
+
+    if (!user) {
+      alert("No registered user found.");
+      return;
+    }
+
+    // Check login credentials
+    if (user.email === email && user.password === password) {
+      login(user.fname + " " + user.lname);
+      alert("Login Successful!");
+      navigate("/");
+    } else {
+      alert("Invalid email or password");
+    }
   };
 
   return (
