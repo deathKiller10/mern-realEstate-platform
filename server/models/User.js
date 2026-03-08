@@ -28,7 +28,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["buyer", "owner", "admin"],
       default: "buyer"
-    }
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false
+    },
 
   },
   {
