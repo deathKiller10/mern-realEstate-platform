@@ -70,7 +70,7 @@ function OwnerRegister() {
         <input
           type="text"
           name="lname"
-          value={formdata.fname}
+          value={formdata.lname}
           placeholder="Last name"
           className="w-full border p-3 mb-4 rounded" onChange={handlechange}
         /><br></br><br></br>
