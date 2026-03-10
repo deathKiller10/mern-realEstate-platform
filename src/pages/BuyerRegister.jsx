@@ -52,9 +52,10 @@ function BuyerRegister() {
     localStorage.setItem("buyer", JSON.stringify(userData));
 
     alert("Registered Successfully!");
-    
+
     login(user.fname + " " + user.lname);
-    navigate("/")
+    navigate("/");
+
   };
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
