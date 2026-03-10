@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/Authcontext";
 function BuyerRegister() {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();  
    const [formdata, setForm] = useState({
        fname: "",
        lname: "",
@@ -49,6 +52,9 @@ function BuyerRegister() {
     localStorage.setItem("buyer", JSON.stringify(userData));
 
     alert("Registered Successfully!");
+    
+    login(user.fname + " " + user.lname);
+    navigate("/")
   };
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">

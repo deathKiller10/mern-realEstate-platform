@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 function OwnerRegister() {
+  const navigate = useNavigate();  
    const [formdata, setForm] = useState({
        fname: "",
        lname: "",
@@ -37,6 +38,10 @@ function OwnerRegister() {
         );
         return;
       }
+      if (!/^\d{10}$/.test(mobile)) {
+        alert("Mobile number must be 10 digits");
+        return;
+      }
 
       const userData = {
         fname,
@@ -49,6 +54,7 @@ function OwnerRegister() {
       localStorage.setItem("owner", JSON.stringify(userData));
 
       alert("Registered Successfully!");
+      navigate("/ownerdetails")
     };
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
@@ -59,7 +65,7 @@ function OwnerRegister() {
           Property Owner Register
         </h2>
 
-        <input
+         <input
           type="text"
           name="fname"
           value={formdata.fname}
