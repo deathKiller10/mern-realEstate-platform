@@ -19,41 +19,57 @@ function BuyerLogin() {
 
   const validatechange = async () => {
   const { email, password } = formdata;
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^[A-Za-z0-9]{8,}$/;
+
   if (!emailRegex.test(email)) {
-    alert("Invalid email");
+    alert("Please enter a valid email address.");
     return;
   }
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/auth/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      }
+
+  if (!passwordRegex.test(password)) {
+    alert(
+      "Password must be at least 8 characters and contain only letters and numbers."
     );
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
     const data = await res.json();
-    if (!res.ok) {
-      alert(data.message);
-      return;
+
+    if (res.ok) {
+      localStorage.setItem("token", data.token);
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      if (data.user.role !== "buyer") {
+        alert("You are not a buyer!");
+        return;
+      }
+
+      alert("Login Successful!");
+
+      navigate("/"); // or buyer dashboard page
+    } else {
+      alert(data.message || "Login failed");
     }
 
-
-    login(data.user, data.token);
-    alert("Login Successful");
-    navigate("/");
-  }
-  catch {
+  } catch (error) {
+    console.log(error);
     alert("Server error");
   }
-
 };
 
   return (

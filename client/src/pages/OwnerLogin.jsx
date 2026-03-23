@@ -19,39 +19,57 @@ function OwnerLogin() {
 
   const validatechange = async () => {
   const { email, password } = formdata;
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/auth/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^[A-Za-z0-9]{8,}$/;
+
+  if (!emailRegex.test(email)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  if (!passwordRegex.test(password)) {
+    alert(
+      "Password must be at least 8 characters and contain only letters and numbers."
     );
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
     const data = await res.json();
-    if (!res.ok) {
-      alert(data.message);
-      return;
-    }
-    if (data.user.role !== "owner") {
-      alert("Not an owner account");
-      return;
+
+    if (res.ok) {
+      // ✅ Save token
+      localStorage.setItem("token", data.token);
+
+      // ✅ Save user info
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // ✅ Update context
+      login(data.user.name);
+
+      alert("Login Successful!");
+
+      navigate("/ownerdetails"); // redirect to add property page
+    } else {
+      alert(data.message || "Login failed");
     }
 
-
-    login(data.user, data.token);
-    navigate("/ownerdetails");
-  }
-  catch {
+  } catch (error) {
+    console.log(error);
     alert("Server error");
   }
-
 };
 
   return (

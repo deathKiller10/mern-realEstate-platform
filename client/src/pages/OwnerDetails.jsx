@@ -1,11 +1,14 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export default function AddProperty() {
+  const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     propertyName: "",
     address: "",
     price: "",
     description: "",
+    type: "",
+    status: "" 
   });
 
   const [photo, setPhoto] = useState(null);
@@ -21,10 +24,48 @@ export default function AddProperty() {
     setPhoto(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Property Details Submitted!");
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Please login first");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/properties", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`   
+      },
+      body: JSON.stringify({
+        title: formData.propertyName,   
+        description: formData.description,
+        price: formData.price,
+        location: formData.address,     
+        type: formData.type,
+        status: formData.status,
+        images: []                      
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Property Added Successfully!");
+      navigate("/");
+    } else {
+      alert(data.message || "Failed to add property");
+    }
+
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#2c3e94]">
@@ -76,6 +117,29 @@ export default function AddProperty() {
             required
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+
+          <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded-md"
+            >
+            <option value="">Select Type</option>
+            <option value="rent">Rent</option>
+            <option value="sale">Sale</option>
+          </select>
+
+          <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded-md"
+            >
+            <option value="">Select Status</option>
+            <option value="available">Available</option>
+            <option value="sold">Sold</option>
+            <option value="rented">Rented</option>
+          </select>
 
           <input
             type="file"
