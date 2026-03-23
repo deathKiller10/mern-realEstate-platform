@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/", authMiddleware, allowRoles("owner"), async (req, res) => {
 
     try {
-        const { title, description, price, location, type, images } = req.body;
+        const { title, description, price, location, type, status, images } = req.body;
         if (!title || !description || !price || !location || !type) {
             return res.status(400).json({
                 message: "Please fill all required fields"
@@ -22,6 +22,7 @@ router.post("/", authMiddleware, allowRoles("owner"), async (req, res) => {
             price,
             location,
             type,
+            status: status || "available",
             images,
             owner: req.user.id
         });
