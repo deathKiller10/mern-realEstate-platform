@@ -11,8 +11,8 @@ import Login from "./pages/Login";
 import BuyerRegister from "./pages/BuyerRegister";
 import OwnerRegister from "./pages/OwnerRegister";
 import OwnerDetails from "./pages/OwnerDetails";
-
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 //import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 function Layout() {
   return (
@@ -39,6 +39,8 @@ export const router = createBrowserRouter([
       { path: "ownerregister", Component: OwnerRegister },
       {path:"ownerdetails", Component:OwnerDetails},
       {path:"properties", Component:Properties},
+      { path: "/forgot-password", element: <ForgotPassword /> },
+      { path: "/reset-password/:token", element: <ResetPassword /> }
       //{path:"ownerprotectedroute", Component:OwnerProtectedRoute},
     ],
   },

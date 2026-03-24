@@ -113,7 +113,14 @@ function BuyerLogin() {
             Create New Account
           </NavLink>
         </p>
-
+       <p className="text-right text-sm mb-3">
+  <NavLink
+    to="/forgot-password"
+    className="text-blue-500 hover:underline"
+  >
+    Forgot Password?
+  </NavLink>
+</p>
       </div>
     </div>
   );
