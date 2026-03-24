@@ -5,11 +5,14 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import BuyerLogin from "./pages/BuyerLogin";
 import OwnerLogin from "./pages/OwnerLogin";
+import Properties from "./pages/Properties";
 
 import Login from "./pages/Login";
 import BuyerRegister from "./pages/BuyerRegister";
 import OwnerRegister from "./pages/OwnerRegister";
 import OwnerDetails from "./pages/OwnerDetails";
+
+
 //import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 function Layout() {
   return (
@@ -35,6 +38,7 @@ export const router = createBrowserRouter([
       { path: "buyerregister", Component: BuyerRegister },
       { path: "ownerregister", Component: OwnerRegister },
       {path:"ownerdetails", Component:OwnerDetails},
+      {path:"properties", Component:Properties},
       //{path:"ownerprotectedroute", Component:OwnerProtectedRoute},
     ],
   },
