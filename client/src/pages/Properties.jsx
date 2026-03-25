@@ -67,10 +67,10 @@ export default function Properties() {
               className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
             >
               <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-44 object-cover"
-              />
+              src={`http://localhost:5000/${item.images?.[0]}`}
+              alt={item.title}
+              className="w-full h-44 object-cover"
+            />
 
               <div className="p-3">
                 <h2 className="font-semibold text-lg">{item.title}</h2>
@@ -81,7 +81,7 @@ export default function Properties() {
                 </p>
 
                 <button className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-                  View Details
+                  Buy now
                 </button>
               </div>
             </div>
