@@ -16,7 +16,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/admin", adminRoutes);
-
+app.use("/assets", express.static("assets"));
 app.get("/", (req, res) => {
 
   res.send("Real Estate API Running");
