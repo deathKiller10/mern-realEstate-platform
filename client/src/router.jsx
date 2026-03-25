@@ -1,4 +1,5 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
+
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -13,6 +14,7 @@ import OwnerRegister from "./pages/OwnerRegister";
 import OwnerDetails from "./pages/OwnerDetails";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Search from "./pages/Search";
 //import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 function Layout() {
   return (
@@ -30,7 +32,7 @@ export const router = createBrowserRouter([
     path: "/",
     Component: Layout,
     children: [
-      { index: true},
+      {  Component: Home },
       { path: "about", Component: About },
       { path: "login", Component: Login },
       { path: "buyerlogin", Component: BuyerLogin },
@@ -40,8 +42,9 @@ export const router = createBrowserRouter([
       {path:"ownerdetails", Component:OwnerDetails},
       {path:"properties", Component:Properties},
       { path: "/forgot-password", element: <ForgotPassword /> },
-      { path: "/reset-password/:token", element: <ResetPassword /> }
+      { path: "/reset-password/:token", element: <ResetPassword /> },
       //{path:"ownerprotectedroute", Component:OwnerProtectedRoute},
+      { path: "search", Component: Search },
     ],
   },
 ]);
