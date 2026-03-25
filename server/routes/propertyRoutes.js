@@ -43,8 +43,15 @@ router.post("/", authMiddleware, allowRoles("owner"), async (req, res) => {
 
 router.get("/search", async (req, res) => {
     try {
-        const { location, type, minPrice, maxPrice } = req.query;
-        const query = {};
+        const { query,location, type, minPrice, maxPrice } = req.query;
+        const searchQuery = {};
+
+        if (query) {
+        searchQuery.$or = [
+        { location: { $regex: query, $options: "i" } },
+        { title: { $regex: query, $options: "i" } }
+          ];
+        }
         if (location) {
             query.location = { $regex: location, $options: "i" };
         }

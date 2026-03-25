@@ -61,7 +61,7 @@ function BuyerLogin() {
 
       alert("Login Successful!");
 
-      navigate("/"); // or buyer dashboard page
+      navigate("/properties"); // or buyer dashboard page
     } else {
       alert(data.message || "Login failed");
     }

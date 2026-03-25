@@ -1,15 +1,20 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import BuyerLogin from "./pages/BuyerLogin";
 import OwnerLogin from "./pages/OwnerLogin";
-
 import Login from "./pages/Login";
 import BuyerRegister from "./pages/BuyerRegister";
 import OwnerRegister from "./pages/OwnerRegister";
 import OwnerDetails from "./pages/OwnerDetails";
+import Search from "./pages/Search";
+import Properties from "./pages/Properties";
+<Route path="/search" element={<Search />} />
+
 //import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 function Layout() {
   return (
@@ -35,6 +40,7 @@ export const router = createBrowserRouter([
       { path: "buyerregister", Component: BuyerRegister },
       { path: "ownerregister", Component: OwnerRegister },
       {path:"ownerdetails", Component:OwnerDetails},
+      {path:"properties", Component:Properties},
       //{path:"ownerprotectedroute", Component:OwnerProtectedRoute},
     ],
   },
