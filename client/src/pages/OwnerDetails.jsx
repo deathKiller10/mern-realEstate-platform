@@ -48,8 +48,9 @@ export default function AddProperty() {
         location: formData.address,     
         type: formData.type,
         status: formData.status,
-        images: []                      
+        images: [formData.image],                    
       }),
+      
     });
 
     const data = await res.json();
@@ -143,6 +144,7 @@ export default function AddProperty() {
 
           <input
             type="file"
+            value={formData.image}
             name="filetoupload"
             onChange={handleFileChange}
             required
