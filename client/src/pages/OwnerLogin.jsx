@@ -80,8 +80,15 @@ else {
           placeholder="Password"
           onChange={handleChange}
           className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-        /><br></br><br></br>
-
+        /><br></br>
+        <p className="text-right text-sm mb-3">
+        <NavLink
+          to="/forgot-password"
+          className="text-blue-500 hover:underline"
+        >
+          Forgot Password?
+        </NavLink>
+      </p>
         <button
           onClick={validatechange}
           className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded"
