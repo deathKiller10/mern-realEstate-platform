@@ -1,10 +1,11 @@
-import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Search() {
   const [results, setResults] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const query = new URLSearchParams(location.search).get("query");
 
@@ -26,26 +27,54 @@ function Search() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Search Results for "{query}"</h2>
+    <div className="min-h-screen bg-gray-100 p-4 md:p-6">
+      <h2 className="text-2xl font-bold mb-6">
+        Search Results for "{query}"
+      </h2>
 
       {results.length === 0 ? (
-        <p>No results found</p>
+        <div className="text-center text-gray-500 mt-10 text-lg">
+          No properties found matching your search.
+        </div>
       ) : (
-        results.map((item) => (
-          <div
-            key={item._id}
-            style={{
-              border: "1px solid gray",
-              margin: "10px",
-              padding: "10px",
-            }}
-          >
-            <h3>{item.title}</h3>
-            <p>{item.location}</p>
-            <p>Area: {item.area} sq.ft</p>
-          </div>
-        ))
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {results.map((item) => (
+            <div
+              key={item._id}
+              className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
+            >
+              <img
+                src={`http://localhost:5000/${item.images?.[0]}`}
+                alt={item.title}
+                className="w-full h-44 object-cover"
+                // Fallback just in case an image breaks
+                onError={(e) => { e.target.src = "https://via.placeholder.com/400x200?text=No+Image+Available" }} 
+              />
+
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-lg truncate w-3/4">{item.title}</h3>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.type === 'rent' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'}`}>
+                    For {item.type}
+                  </span>
+                </div>
+                
+                <p className="text-gray-500 text-sm mb-2">{item.location}</p>
+
+                <p className="text-blue-600 font-bold mt-2 text-xl">
+                  ₹ {item.price.toLocaleString("en-IN")}
+                </p>
+
+                <button 
+                  onClick={() => navigate(`/property/${item._id}`)}
+                  className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Properties() {
   const [properties, setProperties] = useState([]);
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/properties")
@@ -80,8 +82,11 @@ export default function Properties() {
                   ₹ {item.price}
                 </p>
 
-                <button className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-                  Buy now
+                <button 
+                  onClick={() => navigate(`/property/${item._id}`)}
+                  className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                >
+                  View Details
                 </button>
               </div>
             </div>

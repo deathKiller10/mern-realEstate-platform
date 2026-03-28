@@ -7,6 +7,7 @@ import About from "./pages/About";
 import BuyerLogin from "./pages/BuyerLogin";
 import OwnerLogin from "./pages/OwnerLogin";
 import Properties from "./pages/Properties";
+import PropertyDetails from "./pages/PropertyDetails";
 
 import Login from "./pages/Login";
 import BuyerRegister from "./pages/BuyerRegister";
@@ -15,44 +16,67 @@ import OwnerDetails from "./pages/OwnerDetails";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Search from "./pages/Search";
-//import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
+import OwnerDashboard from "./pages/OwnerDashboard";
+
+import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
+import AdminProtectedRoute from "./pages/AdminProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard"; 
+
 function Layout() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      
-      {/* Header */}
       <Header />
-
-      {/* Main Content */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <Outlet />
       </main>
-
-      {/* Footer */}
       <Footer />
     </div>
   );
 }
 
-/* ===== Router ===== */
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: Layout,
     children: [
-      {  Component: Home },
+      { Component: Home, index: true },
       { path: "about", Component: About },
       { path: "login", Component: Login },
       { path: "buyerlogin", Component: BuyerLogin },
       { path: "ownerlogin", Component: OwnerLogin },
       { path: "buyerregister", Component: BuyerRegister },
       { path: "ownerregister", Component: OwnerRegister },
-      {path:"ownerdetails", Component:OwnerDetails},
-      {path:"properties", Component:Properties},
-      { path: "/forgot-password", element: <ForgotPassword /> },
-      { path: "/reset-password/:token", element: <ResetPassword /> },
-      //{path:"ownerprotectedroute", Component:OwnerProtectedRoute},
+      { path: "properties", Component: Properties },
+      
+      { path: "property/:id", Component: PropertyDetails }, 
+      
+      { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password/:token", element: <ResetPassword /> },
       { path: "search", Component: Search },
+      { 
+        path: "ownerdashboard", 
+        element: (
+          <OwnerProtectedRoute>
+            <OwnerDashboard />
+          </OwnerProtectedRoute>
+        ) 
+      },
+      { 
+        path: "ownerdetails", 
+        element: (
+          <OwnerProtectedRoute>
+            <OwnerDetails />
+          </OwnerProtectedRoute>
+        ) 
+      },
+      { 
+        path: "admindashboard", 
+        element: (
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        ) 
+      },
     ],
   },
 ]);

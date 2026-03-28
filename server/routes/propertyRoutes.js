@@ -2,19 +2,27 @@ const express = require("express");
 const Property = require("../models/Property");
 const authMiddleware = require("../middleware/authMiddleware");
 const allowRoles = require("../middleware/roleMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 const router = express.Router();
 
 // add property
-
-router.post("/", authMiddleware, allowRoles("owner"), async (req, res) => {
-
+router.post("/", authMiddleware, allowRoles("owner"), upload.single("image"), async (req, res) => {
     try {
-        const { title, description, price, location, type, status, images } = req.body;
+        const { title, description, price, location, type, status } = req.body;
+        
         if (!title || !description || !price || !location || !type) {
             return res.status(400).json({
                 message: "Please fill all required fields"
             });
         }
+
+        // Check if an image was actually uploaded
+        if (!req.file) {
+            return res.status(400).json({ message: "Please upload an image" });
+        }
+
+        // Format the path so it works nicely on the frontend
+        const imagePath = `uploads/${req.file.filename}`;
 
         const property = new Property({
             title,
@@ -23,10 +31,12 @@ router.post("/", authMiddleware, allowRoles("owner"), async (req, res) => {
             location,
             type,
             status: status || "available",
-            images,
+            images: [imagePath], // Save the file path to MongoDB
             owner: req.user.id
         });
+        
         await property.save();
+        
         res.status(201).json({
             message: "Property added successfully",
             property
@@ -40,39 +50,42 @@ router.post("/", authMiddleware, allowRoles("owner"), async (req, res) => {
 });
 
 // search and filter properties
-
 router.get("/search", async (req, res) => {
     try {
-        const { query,location, type, minPrice, maxPrice } = req.query;
-        const searchQuery = {};
+        // Alias 'query' to 'searchTerm' to prevent variable collisions
+        const { query: searchTerm, location, type, minPrice, maxPrice } = req.query;
+        
+        // This is the actual object we will pass to MongoDB
+        const dbQuery = {};
 
-        if (query) {
-        searchQuery.$or = [
-        { location: { $regex: query, $options: "i" } },
-        { title: { $regex: query, $options: "i" } }
-          ];
+        if (searchTerm) {
+            dbQuery.$or = [
+                { location: { $regex: searchTerm, $options: "i" } },
+                { title: { $regex: searchTerm, $options: "i" } }
+            ];
         }
+
         if (location) {
-            query.location = { $regex: location, $options: "i" };
+            dbQuery.location = { $regex: location, $options: "i" };
         }
+
         if (type) {
-            query.type = type;
+            dbQuery.type = type;
         }
+
         if (minPrice || maxPrice) {
-            query.price = {};
-            if (minPrice) {
-                query.price.$gte = Number(minPrice);
-            }
-            if (maxPrice) {
-                query.price.$lte = Number(maxPrice);
-            }
+            dbQuery.price = {};
+            if (minPrice) dbQuery.price.$gte = Number(minPrice);
+            if (maxPrice) dbQuery.price.$lte = Number(maxPrice);
         }
-        const properties = await Property.find(query)
-        .populate("owner", "name email");
+
+        const properties = await Property.find(dbQuery)
+            .populate("owner", "name email");
+            
         res.json(properties);
     }
     catch (error) {
-            res.status(500).json({
+        res.status(500).json({
             message: error.message
         });
     }
@@ -91,6 +104,19 @@ router.get("/", async (req, res) => {
       message: error.message
     });
   }
+});
+
+// get logged-in owner's properties
+router.get("/my-properties", authMiddleware, allowRoles("owner"), async (req, res) => {
+    try {
+        const properties = await Property.find({ owner: req.user.id }).sort({ createdAt: -1 });
+        res.json(properties);
+    }
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
 });
 
 

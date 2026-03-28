@@ -146,4 +146,79 @@ router.post("/login", async (req, res) => {
 });
 
 
+/*
+FORGOT PASSWORD
+POST /api/auth/forgot-password
+*/
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Standard security practice: Don't explicitly say "User not found" to prevent email enumeration,
+      // but for an MVP/School project, it's totally fine and helpful for debugging.
+      return res.status(404).json({ message: "User with this email does not exist" });
+    }
+
+    // 1. Generate a temporary token that expires in 15 minutes
+    const resetToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    // 2. Construct the frontend reset link
+    const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+    
+    // 3. Log it beautifully to the terminal
+    console.log("\n=======================================================");
+    console.log("🔒 PASSWORD RESET REQUESTED");
+    console.log(`📧 For User: ${user.email}`);
+    console.log(`🔗 Click here to reset: ${resetLink}`);
+    console.log("=======================================================\n");
+
+    res.json({ message: "Password reset link generated. Check your server terminal." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/*
+RESET PASSWORD
+POST /api/auth/reset-password/:token
+*/
+router.post("/reset-password/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+
+    // 1. Verify the token hasn't expired or been tampered with
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // 2. Find the user attached to this token
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 3. Hash the new password and save it
+    user.password = await bcrypt.hash(password, 10);
+    await user.save();
+
+    res.json({ message: "Password reset successful! You can now log in." });
+  } catch (error) {
+    // Distinguish between an expired token and a completely fake one
+    if (error.name === "TokenExpiredError") {
+      return res.status(400).json({ message: "Reset link has expired. Please request a new one." });
+    }
+    res.status(500).json({ message: "Invalid or expired reset token." });
+  }
+});
+
+
 module.exports = router;

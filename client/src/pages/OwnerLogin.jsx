@@ -39,18 +39,23 @@ function OwnerLogin() {
     console.log("LOGIN RESPONSE:", data); // 🔥 DEBUG
 
     if (res.ok) {
-    console.log("TOKEN FOUND:", data.token);
+      console.log("TOKEN FOUND:", data.token);
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    if (data.user.role !== "owner") {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      
+      if (data.user.role !== "owner") {
         alert("You are not an owner!");
         return;
       }  
-    alert("Login Successful!");
-    navigate("/ownerdetails");
-} 
-else {
+
+      login(data.user, data.token); 
+      
+      alert("Login Successful!");
+      
+      navigate("/ownerdashboard");
+    } 
+    else {
       alert(data.message || "Login failed");
     }
 

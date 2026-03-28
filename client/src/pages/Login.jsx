@@ -3,10 +3,10 @@ import { AuthContext } from "../context/Authcontext";
 import { NavLink, useNavigate } from "react-router-dom";
 
 function Login() {
-   const { login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();  
   const [formdata, setForm] = useState({
-    username: "",
+    email: "", // Changed from username to email to match backend
     password: "",
   });
 
@@ -17,29 +17,55 @@ function Login() {
     });
   };
 
-  const validatechange = () => {
-    if (formdata.username === "admin" && formdata.password === "1234"){
-        login(formdata.username); 
-        alert("Login Successful!");
-        navigate("/");
+  const validatechange = async () => {
+    const { email, password } = formdata;
+
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
     }
-      
-    else alert("Invalid login");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.user.role !== "admin") {
+          alert("Access Denied: You are not an Admin!");
+          return;
+        }  
+        
+        // Save to context and local storage
+        login(data.user, data.token); 
+        alert("Admin Login Successful!");
+        navigate("/");
+      } else {
+        alert(data.message || "Invalid credentials");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Server error");
+    }
   };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
-
       <div className="bg-white p-10 rounded-lg shadow-lg w-96">
-
         <h2 className="text-2xl font-bold text-center text-blue-900 mb-6">
-          Login
+          Admin Login
         </h2>
 
         <input
-          type="text"
-          name="username"
-          placeholder="Username"
+          type="email"
+          name="email"
+          placeholder="Admin Email"
           onChange={handleChange}
           className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400 "
         /><br></br><br></br>
@@ -60,15 +86,14 @@ function Login() {
         </button>
 
         <p className="text-center mt-4">
-          Don't have an account?{" "}
+          Not an admin?{" "}
           <NavLink
-            to="/register"
+            to="/"
             className="text-green-500 font-medium"
           >
-            Create New Account
+            Go Home
           </NavLink>
         </p>
-
       </div>
     </div>
   );
