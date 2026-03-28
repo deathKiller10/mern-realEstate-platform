@@ -43,7 +43,10 @@ function OwnerLogin() {
 
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
-
+    if (data.user.role !== "owner") {
+        alert("You are not an owner!");
+        return;
+      }  
     alert("Login Successful!");
     navigate("/ownerdetails");
 } 
