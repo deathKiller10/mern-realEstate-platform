@@ -21,6 +21,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 import AdminProtectedRoute from "./pages/AdminProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard"; 
+import Inbox from "./pages/Inbox";
 
 function Layout() {
   return (
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
       { path: "buyerregister", Component: BuyerRegister },
       { path: "ownerregister", Component: OwnerRegister },
       { path: "properties", Component: Properties },
+      { path: "inbox", Component: Inbox },
       
       { path: "property/:id", Component: PropertyDetails }, 
       

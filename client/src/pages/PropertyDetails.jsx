@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate, NavLink } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../context/Authcontext";
 
 export default function PropertyDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +75,7 @@ export default function PropertyDetails() {
           </div>
         </div>
 
-        {/* Right Side: Price & Contact Card */}
+        {/* Right Side: Price & Contact Form */}
         <div className="w-full md:w-1/3 bg-gray-50 p-6 md:p-8 border-l border-gray-100 flex flex-col justify-between">
           <div>
             <p className="text-gray-500 font-medium mb-1">Asking Price</p>
@@ -81,24 +83,75 @@ export default function PropertyDetails() {
               ₹ {property.price.toLocaleString("en-IN")}
             </p>
 
+            {/* NEW IN-APP MESSAGING FORM */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-              <h3 className="font-semibold text-lg mb-4 text-gray-800">Contact Owner</h3>
-              <p className="font-medium text-gray-700 text-lg mb-1">{property.owner?.name}</p>
-              <p className="text-gray-600 mb-4">📧 {property.owner?.email}</p>
+              <h3 className="font-semibold text-lg mb-4 text-gray-800 border-b pb-2">Contact Owner</h3>
               
-              <a 
-                href={`mailto:${property.owner?.email}?subject=Interested in ${property.title}`}
-                className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
-              >
-                Send Email
-              </a>
+              {/* 1. First, check if the property is actually available */}
+              {property.status !== "available" ? (
+                <div className="text-center py-6 bg-gray-100 rounded-lg border border-gray-200">
+                  <p className="text-gray-800 font-bold text-lg">Not Available</p>
+                  <p className="text-gray-600 mt-2">
+                    This property is currently marked as <span className="font-bold uppercase text-red-500">{property.status}</span>.
+                  </p>
+                </div>
+              ) : !user ? (
+                /* 2. Then, check if the user is logged in */
+                <div className="text-center py-4">
+                  <p className="text-gray-600 mb-4">Please log in to contact the property owner.</p>
+                  <button 
+                    onClick={() => navigate('/buyerlogin')} 
+                    className="w-full bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 transition"
+                  >
+                    Login to Message
+                  </button>
+                </div>
+              ) : user.id === property.owner._id ? (
+                /* 3. Then, prevent owners from messaging themselves */
+                <div className="text-center py-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <p className="text-blue-800 font-semibold">This is your listing.</p>
+                  <p className="text-sm text-blue-600 mt-1">You cannot send an inquiry to yourself.</p>
+                </div>
+              ) : (
+                /* 4. Finally, show the form to valid buyers */
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const text = e.target.message.value;
+                    try {
+                      const token = localStorage.getItem("token");
+                      await axios.post("http://localhost:5000/api/messages/send", {
+                        propertyId: property._id,
+                        receiverId: property.owner._id,
+                        text: text
+                      }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      });
+                      alert("Message sent successfully! Check your Inbox.");
+                      e.target.reset();
+                    } catch (error) {
+                      alert("Failed to send message.");
+                    }
+                  }} 
+                  className="flex flex-col gap-3"
+                >
+                  <textarea 
+                    name="message" 
+                    rows="4" 
+                    placeholder="Hi, I am interested in this property..." 
+                    required 
+                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                  ></textarea>
+                  <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                    Send Message
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 
           <div className="text-center text-sm text-gray-400">
-            Listed on {new Date(property.createdAt).toLocaleDateString()}
-            <br/>
-            Status: <span className="font-semibold text-gray-600 uppercase">{property.status}</span>
+            Listed by {property.owner?.name} on {new Date(property.createdAt).toLocaleDateString()}
           </div>
         </div>
 

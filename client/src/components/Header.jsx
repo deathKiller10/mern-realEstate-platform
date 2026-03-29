@@ -1,152 +1,11 @@
-// import { NavLink ,useNavigate} from "react-router-dom";
-// import { useContext, useState } from "react";
-// import { AuthContext } from "../context/Authcontext";
-// import logo from "../assets/NexEstate.png";
-
-// export default function Header() {
-//   const { user, logout } = useContext(AuthContext);
-// const displayName = user? user.split("@")[0].replace(/[0-9]/g, ""): "";
-//   //const displayName = user?.name || "";
-//   const [showDropdown, setShowDropdown] = useState(false);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleSearch = (e) => {
-//     e.preventDefault();
-//     if (searchTerm.trim() !== "") {
-//       navigate(`/search?query=${searchTerm}`);
-//     }
-//   };
-//   return (
-//   <header className="bg-white shadow-md px-4 sm:px-6 lg:px-8 py-3 relative">
-
-//     <div className="flex items-center justify-between">
-
-//       {/* LEFT: Logo */}
-//       <NavLink to="/" className="flex items-center gap-2">
-//         <img src={logo} alt="logo" className="h-20 w-30" />
-//       </NavLink>
-
-//       {/* DESKTOP NAV */}
-//       <div className="hidden md:flex items-center gap-6">
-
-//         <NavLink to="/" className="hover:text-blue-600">Home</NavLink>
-//         <NavLink to="/about" className="hover:text-blue-600">About</NavLink>
-
-//         {/* Expandable Search */}
-//         <form
-//           onSubmit={handleSearch}
-//           className="flex items-center border rounded-full overflow-hidden"
-//         >
-//           <input
-//             type="text"
-//             placeholder="Search here..."
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//             className="px-3 py-1 outline-none w-32 focus:w-48 transition-all duration-300"
-//           />
-//           <button className="bg-blue-600 text-white px-3 py-1">
-//             Search
-//           </button>
-//         </form>
-//       </div>
-
-//       {/* RIGHT */}
-//       <div className="flex items-center gap-3">
-
-//         {/*  USER / LOGIN */}
-//         {user ? (
-//           <div className="relative">
-//             <button
-//               onClick={() => setShowDropdown(!showDropdown)}
-//               className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full"
-//             >
-//               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
-//                 {displayName.charAt(0).toUpperCase()}
-//               </div>
-//               <span className="hidden sm:block">{displayName}</span>
-//             </button>
-
-//             {showDropdown && (
-//               <div className="absolute right-0 mt-2 bg-white border rounded shadow-md w-40">
-//                 <button
-//                   onClick={logout}
-//                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
-//                 >
-//                   Logout
-//                 </button>
-//               </div>
-//             )}
-//           </div>
-//         ) : (
-//           <div className="relative">
-//             <button
-//               onClick={() => setShowDropdown(!showDropdown)}
-//               className="bg-blue-600 text-white px-3 py-1 rounded"
-//             >
-//               Login ▾
-//             </button>
-
-//             {showDropdown && (
-//               <div className="absolute right-0 mt-2 bg-white border rounded shadow-md flex flex-col w-32">
-//                 <NavLink
-//                   to="/buyerlogin"
-//                   className="px-3 py-2 hover:bg-gray-100"
-//                   onClick={() => setShowDropdown(false)}
-//                 >
-//                   Buyer
-//                 </NavLink>
-//                 <NavLink
-//                   to="/ownerlogin"
-//                   className="px-3 py-2 hover:bg-gray-100"
-//                   onClick={() => setShowDropdown(false)}
-//                 >
-//                   Owner
-//                 </NavLink>
-//               </div>
-//             )}
-//           </div>
-//         )}
-
-//         {/* MENU BUTTON */}
-//         <button
-//           onClick={() => setShowDropdown(!showDropdown)}
-//           className="md:hidden text-xl"
-//         >
-//           ☰
-//         </button>
-//       </div>
-//     </div>
-
-//     {/* MENU */}
-//     {showDropdown && !user && (
-//       <div className="md:hidden mt-3 flex flex-col gap-3 border-t pt-3">
-//         <NavLink to="/" onClick={() => setShowDropdown(false)}>Home</NavLink>
-//         <NavLink to="/about" onClick={() => setShowDropdown(false)}>About</NavLink>
-
-//         <form onSubmit={handleSearch} className="flex">
-//           <input
-//             className="border px-2 py-1 w-full"
-//             placeholder="Search here..."
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//           />
-//         </form>
-//       </div>
-//     )}
-//   </header>
-// );
-// }
-
-
-// client/src/components/Header.jsx
 import { NavLink, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/Authcontext";
 import logo from "../assets/NexEstate.png";
 
 export default function Header() {
   const { user, logout } = useContext(AuthContext);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   let displayName = "";
   if (user) {
@@ -162,10 +21,38 @@ export default function Header() {
   }
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // RESTORED
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user && (user.role === 'buyer' || user.role === 'owner')) {
+      const fetchUnread = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch("http://localhost:5000/api/messages/unread", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          setUnreadCount(data.unreadCount || 0);
+        } catch (err) { console.log(err); }
+      };
+
+      fetchUnread(); // Check immediately on load
+      const interval = setInterval(fetchUnread, 10000); // Check every 10 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  // RESTORED
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== "") {
+      navigate(`/search?query=${searchTerm}`);
+    }
+  };
+
   return (
-    <header className="bg-white shadow-md px-6 py-3">
+    <header className="bg-white shadow-md px-6 py-3 relative">
       <div className="flex items-center justify-between">
 
         {/* LOGO */}
@@ -173,17 +60,35 @@ export default function Header() {
           <img src={logo} alt="logo" className="h-14" />
         </NavLink>
 
-        {/* NAVIGATION */}
-        <div className="flex items-center gap-2 md:gap-4 text-xs md:text-base font medium">
+        {/* NAVIGATION (Desktop Only) */}
+        <div className="hidden md:flex items-center gap-4 text-base font-medium">
           <NavLink to="/" className="hover:text-blue-600">Home</NavLink>
-          <NavLink to="/buyerlogin" className="hover:text-blue-600">Properties</NavLink>
-          <NavLink to="/ownerlogin" className="hover:text-blue-600">Post Property</NavLink>
+          {/* FIXED: Pointing to /properties instead of /buyerlogin */}
+          <NavLink to="/properties" className="hover:text-blue-600">Properties</NavLink>
+          {/* FIXED: Pointing to /ownerdetails so the protected route handles the logic */}
+          <NavLink to="/ownerdetails" className="hover:text-blue-600">Post Property</NavLink>
           <NavLink to="/about" className="hover:text-blue-600">About</NavLink>
+          
+          {/* RESTORED SEARCH */}
+          <form
+            onSubmit={handleSearch}
+            className="flex items-center border rounded-full overflow-hidden ml-4"
+          >
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 outline-none w-32 focus:w-48 transition-all duration-300"
+            />
+            <button className="bg-blue-600 text-white px-3 py-1 text-sm">
+              Search
+            </button>
+          </form>
         </div>
 
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-3">
-
           {user ? (
             <div className="relative">
               <button
@@ -198,7 +103,6 @@ export default function Header() {
 
               {showDropdown && (
                 <div className="absolute right-0 mt-2 bg-white border rounded shadow-md w-48 z-50">
-
                   {user.role === "owner" && (
                     <>
                       <NavLink
@@ -216,6 +120,17 @@ export default function Header() {
                         Add Property
                       </NavLink>
                     </>
+                  )}
+                  {/* Add Inbox for both Buyers and Owners */}
+                  {(user.role === "buyer" || user.role === "owner") && (
+                    <NavLink to="/inbox" onClick={() => setShowDropdown(false)} className="block px-4 py-2 hover:bg-gray-100 font-semibold text-blue-600 border-b">
+                      <span>Inbox</span>
+                      {unreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </NavLink>
                   )}
 
                   {user.role === "admin" && (
@@ -241,7 +156,6 @@ export default function Header() {
                 </div>
               )}
             </div>
-
           ) : (
             <div className="relative">
               <button
@@ -252,7 +166,7 @@ export default function Header() {
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 mt-2 bg-white border rounded shadow-md w-32">
+                <div className="absolute right-0 mt-2 bg-white border rounded shadow-md w-32 z-50">
                   <NavLink
                     to="/buyerlogin"
                     className="block px-3 py-2 hover:bg-gray-100"
@@ -279,8 +193,35 @@ export default function Header() {
             </div>
           )}
 
+          {/* RESTORED MOBILE MENU BUTTON */}
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="md:hidden text-2xl ml-2"
+          >
+            ☰
+          </button>
         </div>
       </div>
+
+      {/* RESTORED MOBILE MENU DROPDOWN */}
+      {showDropdown && !user && (
+        <div className="md:hidden mt-3 flex flex-col gap-3 border-t pt-3">
+          <NavLink to="/" onClick={() => setShowDropdown(false)}>Home</NavLink>
+          <NavLink to="/properties" onClick={() => setShowDropdown(false)}>Properties</NavLink>
+          <NavLink to="/ownerdetails" onClick={() => setShowDropdown(false)}>Post Property</NavLink>
+          <NavLink to="/about" onClick={() => setShowDropdown(false)}>About</NavLink>
+
+          <form onSubmit={handleSearch} className="flex mt-2">
+            <input
+              className="border px-2 py-1 w-full rounded-l"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button className="bg-blue-600 text-white px-3 py-1 rounded-r">Go</button>
+          </form>
+        </div>
+      )}
     </header>
   );
 }

@@ -51,7 +51,6 @@ function BuyerLogin() {
 
     if (res.ok) {
       localStorage.setItem("token", data.token);
-
       localStorage.setItem("user", JSON.stringify(data.user));
 
       if (data.user.role !== "buyer") {
@@ -59,9 +58,11 @@ function BuyerLogin() {
         return;
       }
 
+      login(data.user, data.token);
+
       alert("Login Successful!");
 
-      navigate("/properties"); // or buyer dashboard page
+      navigate("/properties");
     } else {
       alert(data.message || "Login failed");
     }
