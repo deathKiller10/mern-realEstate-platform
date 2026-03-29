@@ -147,5 +147,3 @@ node_modules/
 # logs
 *.log
 
-# specific files
-client/package-lock.json
