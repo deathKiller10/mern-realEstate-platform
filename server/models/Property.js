@@ -28,6 +28,9 @@ const propertySchema = new mongoose.Schema(
     required: true
   },
 
+  bhk: { type: Number, required: true },
+  area: { type: Number, required: true },
+
   status: {
     type: String,
     enum: ["available", "sold", "rented"],

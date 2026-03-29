@@ -8,9 +8,9 @@ const router = express.Router();
 // add property
 router.post("/", authMiddleware, allowRoles("owner"), upload.single("image"), async (req, res) => {
     try {
-        const { title, description, price, location, type, status } = req.body;
+        const { title, description, price, location, type, bhk, area, status } = req.body;
         
-        if (!title || !description || !price || !location || !type) {
+        if (!title || !description || !price || !location || !type || !bhk || !area) {
             return res.status(400).json({
                 message: "Please fill all required fields"
             });
@@ -30,6 +30,8 @@ router.post("/", authMiddleware, allowRoles("owner"), upload.single("image"), as
             price,
             location,
             type,
+            bhk: Number(bhk),
+            area: Number(area),
             status: status || "available",
             images: [imagePath], // Save the file path to MongoDB
             owner: req.user.id
