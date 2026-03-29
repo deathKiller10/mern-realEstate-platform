@@ -45,7 +45,7 @@ export default function Inbox() {
       const receiverId = user.role === "owner" ? activeThread.buyer._id : activeThread.owner._id;
 
       const res = await axios.post("http://localhost:5000/api/messages/send", {
-        propertyId: activeThread.property?._id || null, // Handle deleted properties
+        propertyId: activeThread.property?._id || null, 
         receiverId: receiverId,
         text: replyText
       }, {
@@ -56,7 +56,7 @@ export default function Inbox() {
       setThreads(threads.map(t => t._id === res.data.thread._id ? res.data.thread : t));
       setReplyText("");
     } catch (error) {
-      alert("Failed to send reply");
+      alert(error.response?.data?.message || "Failed to send reply");
     }
   };
 
@@ -98,8 +98,7 @@ export default function Inbox() {
                   }}
                   className={`p-4 border-b cursor-pointer transition ${isActive ? 'bg-blue-100 border-l-4 border-blue-600' : 'hover:bg-gray-100'}`}
                 >
-                  {/* FIX: Added optional chaining (?.) and fallback text */}
-                  <p className="font-bold text-gray-800 truncate">
+                  <p className={`font-bold truncate ${thread.property?.isDeleted ? 'text-red-500 line-through' : 'text-gray-800'}`}>
                     {thread.property?.title || "Unavailable Property"}
                   </p>
                   <p className="text-sm text-gray-600 mt-1">
@@ -120,15 +119,18 @@ export default function Inbox() {
                 {/* Chat Header */}
                 <div className="p-4 border-b bg-white shadow-sm flex items-center gap-4">
                    <img 
-                    // FIX: Added optional chaining here too
-                    src={`http://localhost:5000/${activeThread.property?.images?.[0] || 'placeholder.jpg'}`} 
+                    src={activeThread.property?.images?.[0] 
+                          ? `http://localhost:5000/${activeThread.property.images[0]}` 
+                          : 'https://via.placeholder.com/150?text=Deleted'} 
                     className="w-12 h-12 rounded object-cover bg-gray-200"
                     alt="Property"
                     onError={(e) => e.target.style.display = 'none'}
                    />
+                   {/* FIX: Keep text elements inside this div next to the image */}
                    <div>
-                     {/* FIX: Fallback title */}
-                     <h3 className="font-bold text-lg">{activeThread.property?.title || "Unavailable Property"}</h3>
+                     <h3 className={`font-bold text-lg ${activeThread.property?.isDeleted ? 'text-red-500' : ''}`}>
+                        {activeThread.property?.title || "Unavailable Property"}
+                     </h3>
                      <p className="text-xs text-gray-500">
                        Chatting with {user.role === 'owner' ? activeThread.buyer?.name : activeThread.owner?.name}
                      </p>
@@ -154,7 +156,8 @@ export default function Inbox() {
 
                 {/* Reply Input or Disabled Notice */}
                 <div className="p-4 bg-white border-t">
-                  {activeThread.property ? (
+                  {/* FIX: Use the isDeleted flag we set up on the backend */}
+                  {!activeThread.property?.isDeleted ? (
                     <form onSubmit={handleReply} className="flex gap-2">
                       <input 
                         type="text" 
@@ -168,7 +171,7 @@ export default function Inbox() {
                       </button>
                     </form>
                   ) : (
-                    <div className="text-center py-3 bg-gray-100 rounded-lg text-gray-600 font-medium">
+                    <div className="text-center py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 font-medium">
                       🚫 This property has been removed. Replies are disabled.
                     </div>
                   )}

@@ -1,5 +1,6 @@
 const express = require("express");
 const Inquiry = require("../models/Inquiry");
+// FIXED: Import paths updated to single ../
 const authMiddleware = require("../middleware/authMiddleware");
 const allowRoles = require("../middleware/roleMiddleware");
 const router = express.Router();
@@ -32,11 +33,32 @@ router.post("/", async (req, res) => {
 // 2. PROTECTED: Owner views their received inquiries
 router.get("/my-inquiries", authMiddleware, allowRoles("owner"), async (req, res) => {
   try {
+    // FIXED: Removed populate() and added .lean()
     const inquiries = await Inquiry.find({ owner: req.user.id })
-      .populate("property", "title location") // Grab the property name so the owner knows what it's about
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
       
-    res.json(inquiries);
+    // STITCHING: Fetch property data from Property Service (Port 5002)
+    const inquiriesWithProperties = await Promise.all(
+      inquiries.map(async (inquiry) => {
+        try {
+          const propRes = await fetch(`http://localhost:5002/api/properties/${inquiry.property}`);
+          if (propRes.ok) {
+            const propData = await propRes.json();
+            inquiry.property = { 
+              _id: propData._id, 
+              title: propData.title, 
+              location: propData.location 
+            };
+          }
+        } catch (err) {
+          inquiry.property = { title: "Unknown Property", location: "N/A" };
+        }
+        return inquiry;
+      })
+    );
+
+    res.json(inquiriesWithProperties);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

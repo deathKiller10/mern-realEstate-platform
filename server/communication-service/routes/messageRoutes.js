@@ -1,5 +1,6 @@
 const express = require("express");
 const MessageThread = require("../models/MessageThread");
+// FIXED: Import path updated to single ../
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
@@ -8,16 +9,60 @@ router.get("/my-threads", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // Find threads where the user is either the buyer or the owner
+    // FIXED: Removed populates and added .lean()
     const threads = await MessageThread.find({
       $or: [{ buyer: userId }, { owner: userId }]
     })
-    .populate("property", "title images")
-    .populate("buyer", "name email")
-    .populate("owner", "name email")
-    .sort({ updatedAt: -1 }); // Show most recently updated threads first
+    .sort({ updatedAt: -1 })
+    .lean(); 
 
-    res.json(threads);
+    // STITCHING: Fetch data from Property (5002) and User (5001) services
+    const populatedThreads = await Promise.all(
+      threads.map(async (thread) => {
+        
+        // 1. Fetch Property Data
+        try {
+          const propRes = await fetch(`http://localhost:5002/api/properties/${thread.property}`);
+          if (propRes.ok) {
+            const propData = await propRes.json();
+            thread.property = { 
+              _id: propData._id, 
+              title: propData.title, 
+              images: propData.images,
+              isDeleted: false // Flag as active
+            };
+          } else {
+            // Property returned 404 (Deleted)
+            thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true };
+          }
+        } catch (e) { 
+            // Service down or network error
+            thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true }; 
+        }
+
+        // 2. Fetch Buyer Data
+        try {
+          const buyerRes = await fetch(`http://localhost:5001/api/auth/user/${thread.buyer}`);
+          if (buyerRes.ok) {
+            const buyerData = await buyerRes.json();
+            thread.buyer = { _id: buyerData._id, name: buyerData.name, email: buyerData.email };
+          }
+        } catch (e) { thread.buyer = { name: "Unknown User", email: "N/A" }; }
+
+        // 3. Fetch Owner Data
+        try {
+          const ownerRes = await fetch(`http://localhost:5001/api/auth/user/${thread.owner}`);
+          if (ownerRes.ok) {
+            const ownerData = await ownerRes.json();
+            thread.owner = { _id: ownerData._id, name: ownerData.name, email: ownerData.email };
+          }
+        } catch (e) { thread.owner = { name: "Unknown Owner", email: "N/A" }; }
+
+        return thread;
+      })
+    );
+
+    res.json(populatedThreads);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -33,20 +78,26 @@ router.post("/send", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Determine who is the buyer and who is the owner for the query
-    // If the logged-in user is the owner, the receiver is the buyer, and vice versa.
+    // NEW: Verify the property still exists before allowing a message
+    try {
+      const propCheck = await fetch(`http://localhost:5002/api/properties/${propertyId}`);
+      if (!propCheck.ok) {
+        return res.status(400).json({ message: "Cannot send message. This property has been deleted." });
+      }
+    } catch (error) {
+      return res.status(500).json({ message: "Failed to verify property status. Try again later." });
+    }
+
     const isOwnerSending = req.user.role === "owner";
     const buyerId = isOwnerSending ? receiverId : senderId;
     const ownerId = isOwnerSending ? senderId : receiverId;
 
-    // Check if a thread already exists for this exact buyer, owner, and property
     let thread = await MessageThread.findOne({
       property: propertyId,
       buyer: buyerId,
       owner: ownerId
     });
 
-    // If no thread exists, create one
     if (!thread) {
       thread = new MessageThread({
         property: propertyId,
@@ -56,7 +107,6 @@ router.post("/send", authMiddleware, async (req, res) => {
       });
     }
 
-    // Add the new message to the thread
     thread.messages.push({
       sender: senderId,
       text: text
@@ -80,7 +130,6 @@ router.get("/unread", authMiddleware, async (req, res) => {
     let unreadCount = 0;
     threads.forEach(thread => {
       thread.messages.forEach(msg => {
-        // If someone else sent the message and it hasn't been read
         if (msg.sender.toString() !== req.user.id && !msg.read) {
           unreadCount++;
         }

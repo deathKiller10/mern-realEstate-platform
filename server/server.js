@@ -2,16 +2,16 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcryptjs"); // Added for Admin seeding
-const User = require("./models/User"); // Added for Admin seeding
+const User = require("./user-service/models/User"); // Added for Admin seeding
 
-const adminRoutes = require("./routes/adminRoutes");
+const adminRoutes = require("./user-service/routes/adminRoutes");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
-const propertyRoutes = require("./routes/propertyRoutes");
-const inquiryRoutes = require("./routes/inquiryRoutes");
-const messageRoutes = require("./routes/messageRoutes");
+const authRoutes = require("./user-service/routes/authRoutes");
+const propertyRoutes = require("./property-service/routes/propertyRoutes");
+const inquiryRoutes = require("./communication-service/routes/inquiryRoutes");
+const messageRoutes = require("./communication-service/routes/messageRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;

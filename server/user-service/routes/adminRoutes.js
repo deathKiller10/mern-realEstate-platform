@@ -1,8 +1,8 @@
 const express = require("express");
 const User = require("../models/User");
-const Property = require("../models/Property");
-const authMiddleware = require("../middleware/authMiddleware");
-const allowRoles = require("../middleware/roleMiddleware");
+const Property = require("../../property-service/models/Property");
+const authMiddleware = require("../../middleware/authMiddleware");
+const allowRoles = require("../../middleware/roleMiddleware");
 const router = express.Router();
 
 // get all users

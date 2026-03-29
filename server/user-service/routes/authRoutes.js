@@ -220,5 +220,21 @@ router.post("/reset-password/:token", async (req, res) => {
   }
 });
 
+/*
+GET USER BY ID (For Microservice Internal Communication)
+GET /api/auth/user/:id
+*/
+router.get("/user/:id", async (req, res) => {
+  try {
+    // We only select the name and email, just like .populate("owner", "name email") used to do!
+    const user = await User.findById(req.params.id).select("name email mobile");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;
