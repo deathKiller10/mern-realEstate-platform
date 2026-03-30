@@ -1,6 +1,7 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path"); // Needed to serve static files
 const connectDB = require("./config/db"); 
@@ -8,8 +9,10 @@ const connectDB = require("./config/db");
 // Import specific routes for this service
 const propertyRoutes = require("./routes/propertyRoutes");
 
-dotenv.config();
 connectDB();
+
+const { connectRabbitMQ } = require("./config/rabbitmq");
+connectRabbitMQ();
 
 const app = express();
 

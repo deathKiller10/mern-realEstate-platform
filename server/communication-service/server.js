@@ -1,6 +1,7 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
@@ -8,8 +9,10 @@ const connectDB = require("./config/db");
 const inquiryRoutes = require("./routes/inquiryRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 
-dotenv.config();
 connectDB();
+
+const { connectRabbitMQ } = require("./config/rabbitmq");
+connectRabbitMQ();
 
 const app = express();
 

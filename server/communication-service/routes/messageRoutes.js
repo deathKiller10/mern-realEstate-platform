@@ -21,23 +21,27 @@ router.get("/my-threads", authMiddleware, async (req, res) => {
       threads.map(async (thread) => {
         
         // 1. Fetch Property Data
-        try {
-          const propRes = await fetch(`http://localhost:5002/api/properties/${thread.property}`);
-          if (propRes.ok) {
-            const propData = await propRes.json();
-            thread.property = { 
-              _id: propData._id, 
-              title: propData.title, 
-              images: propData.images,
-              isDeleted: false // Flag as active
-            };
-          } else {
-            // Property returned 404 (Deleted)
+        if (thread.propertyDeleted) {
+            // ⚡ FAST PATH: We already know it's deleted from RabbitMQ! Skip the network request!
             thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true };
-          }
-        } catch (e) { 
-            // Service down or network error
-            thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true }; 
+        } else {
+            // 🐢 NORMAL PATH: It's an active property, so fetch the details
+            try {
+                const propRes = await fetch(`http://localhost:5002/api/properties/${thread.property}`);
+                if (propRes.ok) {
+                    const propData = await propRes.json();
+                    thread.property = { 
+                        _id: propData._id, 
+                        title: propData.title, 
+                        images: propData.images,
+                        isDeleted: false 
+                    };
+                } else {
+                    thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true };
+                }
+            } catch (e) { 
+                thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true }; 
+            }
         }
 
         // 2. Fetch Buyer Data

@@ -22,6 +22,7 @@ const threadSchema = new mongoose.Schema({
     ref: "Property",
     required: true
   },
+  propertyDeleted: { type: Boolean, default: false },
   buyer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

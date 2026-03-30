@@ -1,8 +1,10 @@
+const { publishEvent } = require("../config/rabbitmq");
 const express = require("express");
 const Property = require("../models/Property");
 const authMiddleware = require("../middleware/authMiddleware");
 const allowRoles = require("../middleware/roleMiddleware");
 const upload = require("../middleware/uploadMiddleware");
+const redisClient = require("../config/redisClient");
 const router = express.Router();
 
 // add property
@@ -38,6 +40,9 @@ router.post("/", authMiddleware, allowRoles("owner"), upload.single("image"), as
         });
         
         await property.save();
+
+        await redisClient.del("all_properties");
+        console.log("🧹 Cache Cleared: New property added");
         
         res.status(201).json({
             message: "Property added successfully",
@@ -92,29 +97,41 @@ router.get("/search", async (req, res) => {
     }
 });
 
-// get all properties
+// get all properties (NOW WITH REDIS CACHING)
 router.get("/", async (req, res) => {
   try {
-    // 1. Fetch raw properties using .lean() so we can modify the object
-    const properties = await Property.find().lean();
+    // 1. Check if we have the properties saved in Redis
+    const cachedProperties = await redisClient.get("all_properties");
+
+    if (cachedProperties) {
+      console.log("⚡ Serving from Redis Cache");
+      // Redis stores data as strings, so we parse it back to JSON
+      return res.json(JSON.parse(cachedProperties)); 
+    }
+
+    console.log("🗄️ Serving from MongoDB (Cache Miss)");
     
-    // 2. Loop through each property and fetch the owner's data from the User Service
+    // 2. If not in Redis, fetch from MongoDB (Stitching User Data)
+    const properties = await Property.find().lean().sort({ createdAt: -1 });
+    
     const propertiesWithOwners = await Promise.all(
       properties.map(async (property) => {
         try {
-          // Make an internal backend-to-backend call to Port 5001
           const userRes = await fetch(`http://localhost:5001/api/auth/user/${property.owner}`);
           if (userRes.ok) {
             const userData = await userRes.json();
-            property.owner = userData; // Replace the raw ID with the fetched user object!
+            property.owner = userData; 
           }
         } catch (err) {
-          console.log("Failed to fetch user for property:", property._id);
-          property.owner = { name: "Unknown Owner", email: "N/A" }; // Fallback safety
+          property.owner = { name: "Unknown Owner", email: "N/A" }; 
         }
         return property;
       })
     );
+
+    // 3. Save the result into Redis for the next person!
+    // SETEX means "Set with Expiration". We'll cache it for 3600 seconds (1 hour).
+    await redisClient.setEx("all_properties", 3600, JSON.stringify(propertiesWithOwners));
 
     res.json(propertiesWithOwners);
   } catch (error) {
@@ -184,13 +201,24 @@ router.put("/:id", authMiddleware, allowRoles("owner"), async (req, res) => {
         property.location = location || property.location;
         property.type = type || property.type;
         property.images = images || property.images;
+
         await property.save();
+
+        await redisClient.del("all_properties");
+        console.log("🧹 Cache Cleared: Property updated");
+
         res.json({
             message: "Property updated successfully",
             property
         });
     }
     catch (error) {
+        if (error.name === 'VersionError') {
+            return res.status(409).json({ 
+                message: "Conflict: This property was just modified by another process. Please refresh and try again." 
+            });
+        }
+
         res.status(500).json({
             message: error.message
         });
@@ -213,6 +241,14 @@ router.delete("/:id", authMiddleware, allowRoles("owner"), async (req, res) => {
         }
 
         await property.deleteOne();
+
+        await redisClient.del("all_properties");
+        console.log("🧹 Cache Cleared: Property deleted");
+
+        publishEvent({
+            action: "PROPERTY_DELETED",
+            propertyId: req.params.id
+        });
 
         res.json({
             message: "Property deleted successfully"
@@ -243,6 +279,8 @@ router.patch("/:id/status", authMiddleware, allowRoles("owner"), async (req, res
         property.status = status;
         
         await property.save();
+
+        await redisClient.del("all_properties");
         
         res.json({
             message: "Property status updated",
@@ -250,6 +288,12 @@ router.patch("/:id/status", authMiddleware, allowRoles("owner"), async (req, res
         });
     }
     catch (error) {
+        if (error.name === 'VersionError') {
+            return res.status(409).json({ 
+                message: "Conflict: This property was just modified by another process. Please refresh and try again." 
+            });
+        }
+
         res.status(500).json({
             message: error.message
         });
