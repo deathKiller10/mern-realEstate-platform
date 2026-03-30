@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import PropertySkeleton from "../components/PropertySkeleton"; // 1. Import Skeleton
 
 function Search() {
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true); // 2. Add loading state
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,6 +19,7 @@ function Search() {
   }, [query]);
 
   const fetchResults = async () => {
+    setLoading(true); // Start loading
     try {
       const res = await axios.get(
         `http://localhost:5000/api/properties/search?query=${query}`
@@ -23,6 +27,8 @@ function Search() {
       setResults(res.data);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -32,7 +38,17 @@ function Search() {
         Search Results for "{query}"
       </h2>
 
-      {results.length === 0 ? (
+      {/* 3. Conditional Rendering: Skeletons -> Data -> Empty State */}
+      {loading ? (
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <PropertySkeleton />
+          <PropertySkeleton />
+          <PropertySkeleton />
+          <PropertySkeleton />
+          <PropertySkeleton />
+          <PropertySkeleton />
+        </div>
+      ) : results.length === 0 ? (
         <div className="text-center text-gray-500 mt-10 text-lg">
           No properties found matching your search.
         </div>
@@ -47,7 +63,6 @@ function Search() {
                 src={`http://localhost:5000/${item.images?.[0]}`}
                 alt={item.title}
                 className="w-full h-44 object-cover"
-                // Fallback just in case an image breaks
                 onError={(e) => { e.target.src = "https://via.placeholder.com/400x200?text=No+Image+Available" }} 
               />
 

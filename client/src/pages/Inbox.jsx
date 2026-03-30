@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import toast from 'react-hot-toast';
 import axios from "axios";
 import { AuthContext } from "../context/Authcontext";
 import { useNavigate } from "react-router-dom";
@@ -40,6 +41,8 @@ export default function Inbox() {
     e.preventDefault();
     if (!replyText.trim()) return;
 
+    const toastId = toast.loading('Sending message...');
+
     try {
       const token = localStorage.getItem("token");
       const receiverId = user.role === "owner" ? activeThread.buyer._id : activeThread.owner._id;
@@ -55,6 +58,9 @@ export default function Inbox() {
       setActiveThread(res.data.thread);
       setThreads(threads.map(t => t._id === res.data.thread._id ? res.data.thread : t));
       setReplyText("");
+
+      toast.success('Message sent!', { id: toastId });
+
     } catch (error) {
       alert(error.response?.data?.message || "Failed to send reply");
     }
