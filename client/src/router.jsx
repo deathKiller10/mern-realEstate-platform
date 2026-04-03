@@ -23,6 +23,7 @@ import OwnerProtectedRoute from "./pages/OwnerProtectedRoute";
 import AdminProtectedRoute from "./pages/AdminProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard"; 
 import Inbox from "./pages/Inbox";
+import Wishlist from "./pages/Wishlist";
 
 function Layout() {
   return (
@@ -67,6 +68,7 @@ export const router = createBrowserRouter([
       { path: "forgot-password", element: <ForgotPassword /> },
       { path: "reset-password/:token", element: <ResetPassword /> },
       { path: "search", Component: Search },
+      { path: "wishlist", Component: Wishlist },
       { 
         path: "ownerdashboard", 
         element: (

@@ -4,11 +4,15 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { AuthProvider } from "./context/Authcontext"
 import "./index.css";
+import { WishlistProvider } from "./context/WishlistContext";
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <WishlistProvider>
+        <RouterProvider router={router} />
+      </WishlistProvider>
     </AuthProvider>
   </StrictMode>
 );

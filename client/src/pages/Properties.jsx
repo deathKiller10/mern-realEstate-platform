@@ -180,6 +180,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useContext } from "react";
+import { WishlistContext } from "../context/WishlistContext";
 import PropertySkeleton from "../components/PropertySkeleton"; // 1. Import Skeleton
 
 export default function Properties() {
@@ -194,6 +196,7 @@ export default function Properties() {
   const [minArea, setMinArea] = useState("");
   
   const navigate = useNavigate();
+ const { addToWishlist } = useContext(WishlistContext);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -309,6 +312,12 @@ export default function Properties() {
                     <h3 className="font-bold text-lg truncate mb-1">{item.title}</h3>
                     <p className="text-gray-500 text-sm mb-2">📍 {item.location}</p>
                     <p className="text-blue-600 font-bold text-lg mb-4">₹ {item.price.toLocaleString("en-IN")}</p>
+                    <button
+                      onClick={() => addToWishlist(item)}
+                      className="bg-red-500 text-white px-3 py-1 rounded mb-3 w-full hover:bg-red-600"
+                    >
+                      Add to Wishlist
+                    </button>
                     <button 
                       onClick={() => navigate(`/property/${item._id}`)}
                       className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold transition"

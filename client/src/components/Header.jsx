@@ -299,7 +299,8 @@ export default function Header() {
           <NavLink to="/properties" className="hover:text-blue-600 transition-colors">Properties</NavLink>
           <NavLink to="/ownerdetails" className="hover:text-blue-600 transition-colors">Post Property</NavLink>
           <NavLink to="/about" className="hover:text-blue-600 transition-colors">About</NavLink>
-          
+          <NavLink to="/wishlist">Wishlist</NavLink>
+
           {/* DESKTOP SEARCH */}
           <form
             onSubmit={handleSearch}
