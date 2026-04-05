@@ -180,6 +180,9 @@ function BuyerLogin() {
         localStorage.setItem("user", JSON.stringify(data.user));
         login(data.user, data.token);
 
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+
         toast.success("Login Successful!", { id: toastId });
         navigate("/properties");
       } else {

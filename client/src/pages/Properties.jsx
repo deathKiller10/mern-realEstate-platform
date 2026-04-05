@@ -156,7 +156,14 @@ export default function Properties() {
                     <p className="text-gray-500 text-sm mb-2">📍 {item.location}</p>
                     <p className="text-blue-600 font-bold text-lg mb-4">₹ {item.price.toLocaleString("en-IN")}</p>
                     <button
-                      onClick={() => addToWishlist(item)}
+                      onClick={() => {
+                      const user = JSON.parse(localStorage.getItem("user"));
+                      if (!user) {
+                        alert("Please login first");
+                        return;
+                      }
+                      addToWishlist(item);
+                    }}
                       className="bg-red-500 text-white px-3 py-1 rounded mb-3 w-full hover:bg-red-600"
                     >
                       Add to Wishlist
