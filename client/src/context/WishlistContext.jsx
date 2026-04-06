@@ -7,20 +7,17 @@ export function WishlistProvider({ children }) {
 
   // Load from localStorage
   useEffect(() => {
-    useEffect(() => {
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-  const key = currentUser ? `wishlist_${currentUser.email}` : "wishlist_guest";
-  const saved = JSON.parse(localStorage.getItem(key)) || [];
-  setWishlist(saved);
-}, []);
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    const key = currentUser ? `wishlist_${currentUser.email}` : "wishlist_guest";
+    const saved = JSON.parse(localStorage.getItem(key)) || [];
+    setWishlist(saved);
   }, []);
 
   // Save to localStorage
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("user"));
-  const key = currentUser ? `wishlist_${currentUser.email}` : "wishlist_guest";
-
-  localStorage.setItem(key, JSON.stringify(wishlist));
+    const key = currentUser ? `wishlist_${currentUser.email}` : "wishlist_guest";
+    localStorage.setItem(key, JSON.stringify(wishlist));
   }, [wishlist]);
 
   const addToWishlist = (property) => {

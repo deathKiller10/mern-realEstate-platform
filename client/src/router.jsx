@@ -25,6 +25,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Inbox from "./pages/Inbox";
 import Wishlist from "./pages/Wishlist";
 
+import PaymentPage from "./pages/PaymentPage";
+import MyBookings from "./pages/MyBookings";
+
 function Layout() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -64,6 +67,8 @@ export const router = createBrowserRouter([
       { path: "inbox", Component: Inbox },
       
       { path: "property/:id", Component: PropertyDetails }, 
+      { path: "payment", Component: PaymentPage },
+      { path: "my-bookings", Component: MyBookings },
       
       { path: "forgot-password", element: <ForgotPassword /> },
       { path: "reset-password/:token", element: <ResetPassword /> },

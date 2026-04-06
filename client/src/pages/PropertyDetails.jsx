@@ -10,6 +10,16 @@ export default function PropertyDetails() {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const handleBuyNow = (property) => {
+  navigate("/payment", { 
+    state: { 
+      amount: property.price, // or item.price
+      title: property.title,
+      propertyId: property._id // <--- Make sure this exists!
+    } 
+  });
+};
+
   useEffect(() => {
     const fetchProperty = async () => {
       try {
@@ -50,11 +60,14 @@ export default function PropertyDetails() {
         {/* Left Side: Image & Core Details */}
         <div className="w-full md:w-2/3 flex flex-col">
           <img
-            src={`http://localhost:5000/${property.images?.[0]}`}
-            alt={property.title}
-            className="w-full h-96 object-cover"
-            onError={(e) => { e.target.src = "https://via.placeholder.com/800x400?text=No+Image" }}
-          />
+  src={
+    property.images?.[0] 
+      ? `http://localhost:5000/uploads/${property.images[0].split('/').pop()}` 
+      : "https://via.placeholder.com/400x200?text=No+Image"
+  }
+  alt={property.title}
+  className="w-full h-96 object-cover"
+/>
           
           <div className="p-6 md:p-8">
             <div className="flex justify-between items-start mb-4">
@@ -145,6 +158,13 @@ export default function PropertyDetails() {
                   <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
                     Send Message
                   </button>
+                  <br/>
+                  <button 
+                      onClick={() => handleBuyNow(property)} 
+                      className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-semibold mb-2 transition"
+                    >
+                      Buy Now
+                    </button>
                 </form>
               )}
             </div>

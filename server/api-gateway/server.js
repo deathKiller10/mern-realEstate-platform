@@ -32,7 +32,7 @@ app.use("/api/properties", createProxyMiddleware({
 app.use("/uploads", createProxyMiddleware({ 
   target: "http://localhost:5002", 
   changeOrigin: true,
-  pathRewrite: preservePath 
+  //pathRewrite: preservePath 
 }));
 
 // --- 3. Route to Communication Service (Port 5003) ---
@@ -46,7 +46,15 @@ app.use("/api/messages", createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: preservePath 
 }));
-
+// --- 4. Payment Service (Port 5004) ---
+// UPDATED: Now using createProxyMiddleware for consistency
+app.use("/api/payment", createProxyMiddleware({ 
+  target: "http://localhost:5004", 
+  changeOrigin: true,
+  pathRewrite: (path) => path.replace(/^\/api\/payment/, "") 
+  // 💡 Note: We replace the prefix because your Payment server.js 
+  // is likely listening for "/create-intent" directly.
+}));
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

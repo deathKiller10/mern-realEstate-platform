@@ -42,6 +42,10 @@ const propertySchema = new mongoose.Schema(
       type: String
     }
   ],
+  buyer: {
+    type: String,
+    default: null, // This will store the buyer's email after payment
+  },
 
   owner: {
     type: mongoose.Schema.Types.ObjectId,

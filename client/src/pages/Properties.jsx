@@ -22,7 +22,7 @@ export default function Properties() {
  const handleBuyNow = (item) => {
   navigate("/payment", { 
     state: { 
-      amount: 5000, // or item.price
+      amount: item.price, // or item.price
       title: item.title,
       propertyId: item._id // <--- Make sure this exists!
     } 
@@ -169,11 +169,11 @@ export default function Properties() {
                       Add to Wishlist
                     </button>
                     <button 
-  onClick={() => handleBuyNow(item)} 
-  className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-semibold mb-2 transition"
->
-  Buy Now
-</button>
+                      onClick={() => handleBuyNow(item)} 
+                      className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-semibold mb-2 transition"
+                    >
+                      Buy Now
+                    </button>
                     <button 
                       onClick={() => navigate(`/property/${item._id}`)}
                       className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold transition"

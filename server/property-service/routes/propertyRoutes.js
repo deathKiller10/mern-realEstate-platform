@@ -112,8 +112,8 @@ router.get("/", async (req, res) => {
     console.log("🗄️ Serving from MongoDB (Cache Miss)");
     
     // 2. If not in Redis, fetch from MongoDB (Stitching User Data)
-    const properties = await Property.find().lean().sort({ createdAt: -1 });
-    
+    const properties = await Property.find({ status: "available" }).lean().sort({ createdAt: -1 });
+
     const propertiesWithOwners = await Promise.all(
       properties.map(async (property) => {
         try {
@@ -152,6 +152,22 @@ router.get("/my-properties", authMiddleware, allowRoles("owner"), async (req, re
     }
 });
 
+router.patch("/book", async (req, res) => {
+    const { propertyId, buyerEmail } = req.body;
+    try {
+        await Property.findByIdAndUpdate(propertyId, { $set: { status: "sold", buyer: buyerEmail } });
+        if (redisClient) await redisClient.del("all_properties"); // Clear cache
+        res.status(200).json({ message: "Success" });
+    } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Logic to fetch a user's purchased properties
+router.get("/my-bookings", async (req, res) => {
+    try {
+        const bookings = await Property.find({ buyer: req.query.email });
+        res.json(bookings);
+    } catch (err) { res.status(500).json({ message: err.message }); }
+});
 
 // get single property by ID
 router.get("/:id", async (req, res) => {
