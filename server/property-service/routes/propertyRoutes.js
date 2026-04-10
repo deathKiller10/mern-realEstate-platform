@@ -139,6 +139,25 @@ router.get("/", async (req, res) => {
   }
 });
 
+// POST: Get full property details for the Wishlist
+router.post("/wishlist-details", async (req, res) => {
+  try {
+    const { propertyIds } = req.body;
+    
+    if (!propertyIds || !Array.isArray(propertyIds)) {
+      return res.status(400).json({ message: "Invalid property IDs" });
+    }
+
+    // Fetch all properties where the ID is inside the array
+    const savedProperties = await Property.find({ _id: { $in: propertyIds } });
+    
+    res.json(savedProperties);
+  } catch (error) {
+    console.error("Wishlist fetch error:", error);
+    res.status(500).json({ message: "Server error fetching wishlist properties" });
+  }
+});
+
 // get logged-in owner's properties
 router.get("/my-properties", authMiddleware, allowRoles("owner"), async (req, res) => {
     try {
@@ -152,21 +171,27 @@ router.get("/my-properties", authMiddleware, allowRoles("owner"), async (req, re
     }
 });
 
-router.patch("/book", async (req, res) => {
+// 1. SECURED: Only logged-in users can book a property
+router.patch("/book", authMiddleware, async (req, res) => {
     const { propertyId, buyerEmail } = req.body;
     try {
         await Property.findByIdAndUpdate(propertyId, { $set: { status: "sold", buyer: buyerEmail } });
         if (redisClient) await redisClient.del("all_properties"); // Clear cache
         res.status(200).json({ message: "Success" });
-    } catch (err) { res.status(500).json({ message: err.message }); }
+    } catch (err) { 
+        res.status(500).json({ message: err.message }); 
+    }
 });
 
-// Logic to fetch a user's purchased properties
-router.get("/my-bookings", async (req, res) => {
+// 2. SECURED: Only logged-in users can view their bookings
+router.get("/my-bookings", authMiddleware, async (req, res) => {
     try {
+        // Find properties where the buyer email matches the requested email
         const bookings = await Property.find({ buyer: req.query.email });
         res.json(bookings);
-    } catch (err) { res.status(500).json({ message: err.message }); }
+    } catch (err) { 
+        res.status(500).json({ message: err.message }); 
+    }
 });
 
 // get single property by ID

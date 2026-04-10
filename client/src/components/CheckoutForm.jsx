@@ -54,9 +54,10 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
       } else if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
         try {
           // 3. Update the Property status in the database
+          const token = localStorage.getItem("token");
           const updateRes = await fetch("http://localhost:5000/api/properties/book", {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ 
             propertyId: propertyId, 
             buyerEmail: userEmail // <-- Ensure 'userEmail' actually has a value here!

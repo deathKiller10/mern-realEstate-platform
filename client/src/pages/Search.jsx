@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import PropertySkeleton from "../components/PropertySkeleton"; // 1. Import Skeleton
+import PropertySkeleton from "../components/PropertySkeleton";
+import { WishlistContext } from "../context/WishlistContext";
+import { AuthContext } from "../context/Authcontext";
+import toast from "react-hot-toast";
 
 function Search() {
   const [results, setResults] = useState([]);
@@ -9,6 +12,8 @@ function Search() {
   
   const location = useLocation();
   const navigate = useNavigate();
+  const { addToWishlist } = useContext(WishlistContext);
+  const { user } = useContext(AuthContext);
 
   const query = new URLSearchParams(location.search).get("query");
 
@@ -79,6 +84,21 @@ function Search() {
                 <p className="text-blue-600 font-bold mt-2 text-xl">
                   ₹ {item.price.toLocaleString("en-IN")}
                 </p>
+
+                {(!user || user.role === "buyer") && (
+                  <button
+                    onClick={() => {
+                      if (!user) {
+                        toast.error("Please login first to save properties!");
+                        return;
+                      }
+                      addToWishlist(item);
+                    }}
+                    className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition font-semibold mb-2"
+                  >
+                    Add to Wishlist
+                  </button>
+                )}
 
                 <button 
                   onClick={() => navigate(`/property/${item._id}`)}

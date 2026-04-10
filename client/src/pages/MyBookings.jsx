@@ -11,8 +11,10 @@ useEffect(() => {
   const fetchBookings = async () => {
     try {
       // Ensure the key 'email' here matches 'req.query.email' in your backend
+      const token = localStorage.getItem("token");
       const res = await axios.get(`http://localhost:5000/api/properties/my-bookings`, {
-        params: { email: userEmail } 
+        params: { email: userEmail },
+        headers: { Authorization: `Bearer ${token}` } 
       });
       console.log("Bookings found:", res.data);
       setBookings(res.data);

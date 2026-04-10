@@ -32,7 +32,7 @@ app.use("/api/properties", createProxyMiddleware({
 app.use("/uploads", createProxyMiddleware({ 
   target: "http://localhost:5002", 
   changeOrigin: true,
-  //pathRewrite: preservePath 
+  pathRewrite: preservePath 
 }));
 
 // --- 3. Route to Communication Service (Port 5003) ---

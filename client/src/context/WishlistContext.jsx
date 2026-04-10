@@ -1,77 +1,114 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "./Authcontext"; 
+import toast from "react-hot-toast";
 
 export const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
-  const [userKey, setUserKey] = useState(null);
+  
+  // Grab the user from AuthContext so we know when they log in/out
+  const { user } = useContext(AuthContext);
 
-  //  Get current user key
-  const getUserKey = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    return user ? `wishlist_${user.email}` : null;
-  };
-
+  // 1. Fetch wishlist from database when user logs in
   useEffect(() => {
-  const interval = setInterval(() => {
-    const key = getUserKey();
+    if (!user) {
+      setWishlist([]); // Clear wishlist on logout
+      return;
+    }
 
-    setUserKey((prevKey) => {
-      if (prevKey !== key) {
-        return key; // update only if changed
+    const fetchWishlist = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        
+        // A. Get the array of saved Property IDs from the User Service
+        const idRes = await axios.get("http://localhost:5000/api/auth/wishlist", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const propertyIds = idRes.data;
+
+        if (propertyIds.length === 0) {
+          setWishlist([]);
+          return;
+        }
+
+        // B. Get the full property details from the Property Service
+        const detailRes = await axios.post("http://localhost:5000/api/properties/wishlist-details", {
+          propertyIds: propertyIds
+        });
+        
+        setWishlist(detailRes.data);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
       }
-      return prevKey;
-    });
-  }, 500); 
+    };
 
-  return () => clearInterval(interval);
-  }, []);
+    fetchWishlist();
+  }, [user]); // Re-run whenever 'user' changes
 
-  //  Load wishlist when user changes
-  useEffect(() => {
-    if (!userKey) {
-      setWishlist([]);
+  // 2. Add Item (Syncs with DB)
+  const addToWishlist = async (property) => {
+    if (!user) {
+      toast.error("Please login first to save properties!");
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem(userKey)) || [];
-    setWishlist(saved);
-  }, [userKey]);
-
-  //  Save wishlist per user
-  useEffect(() => {
-    if (userKey) {
-      localStorage.setItem(userKey, JSON.stringify(wishlist));
-    }
-  }, [wishlist, userKey]);
-
-  //  Add item (with protection)
-  const addToWishlist = (property) => {
-    if (!userKey) {
-      alert("Please login first");
+    if (user.role === "owner") {
+      toast.error("Only buyers can add properties to a wishlist.");
       return;
     }
 
-    setWishlist((prev) => {
-      const exists = prev.find((item) => item._id === property._id);
-      if (exists) return prev;
-      return [...prev, property];
-    });
+    const exists = wishlist.find((item) => item._id === property._id);
+    if (exists) {
+      toast.error("Property is already in your wishlist.");
+      return;
+    }
+
+    // Optimistic UI Update: Instantly add to state so it feels fast
+    setWishlist((prev) => [...prev, property]);
+    toast.success("Added to Wishlist! 🤍");
+
+    try {
+      const token = localStorage.getItem("token");
+      // Tell backend to add it (Toggles it on)
+      await axios.post(`http://localhost:5000/api/auth/wishlist/${property._id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      // If server fails, revert the optimistic update
+      setWishlist((prev) => prev.filter((item) => item._id !== property._id));
+      toast.error("Failed to save to database. Please try again.");
+    }
   };
 
-  //  Remove item (with protection)
-  const removeFromWishlist = (id) => {
-    if (!userKey) return;
+  // 3. Remove Item (Syncs with DB)
+  const removeFromWishlist = async (id) => {
+    if (!user) return;
 
-    setWishlist((prev) =>
-      prev.filter((item) => item._id !== id)
-    );
+    // Save item temporarily in case the API fails and we need to revert
+    const removedItem = wishlist.find(item => item._id === id);
+    
+    // Optimistic UI Update
+    setWishlist((prev) => prev.filter((item) => item._id !== id));
+    toast.success("Removed from Wishlist");
+
+    try {
+      const token = localStorage.getItem("token");
+      // Tell backend to remove it (Toggles it off)
+      await axios.post(`http://localhost:5000/api/auth/wishlist/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      // Revert if API fails
+      if (removedItem) setWishlist((prev) => [...prev, removedItem]);
+      toast.error("Failed to remove. Please try again.");
+    }
   };
 
   return (
-    <WishlistContext.Provider
-      value={{ wishlist, addToWishlist, removeFromWishlist }}
-    >
+    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist }}>
       {children}
     </WishlistContext.Provider>
   );

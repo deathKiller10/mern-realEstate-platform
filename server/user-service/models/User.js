@@ -35,6 +35,8 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
+    wishlist: [{ type: String }]
+
   },
   {
     timestamps: true

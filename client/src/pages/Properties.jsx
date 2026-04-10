@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useContext } from "react";
 import { WishlistContext } from "../context/WishlistContext";
+import { AuthContext } from "../context/Authcontext";
 import PropertySkeleton from "../components/PropertySkeleton"; // 1. Import Skeleton
 
 export default function Properties() {
@@ -19,6 +20,7 @@ export default function Properties() {
   
   const navigate = useNavigate();
  const { addToWishlist } = useContext(WishlistContext);
+ const { user } = useContext(AuthContext);
  const handleBuyNow = (item) => {
   navigate("/payment", { 
     state: { 
@@ -155,19 +157,20 @@ export default function Properties() {
                     <h3 className="font-bold text-lg truncate mb-1">{item.title}</h3>
                     <p className="text-gray-500 text-sm mb-2"> {item.location}</p>
                     <p className="text-blue-600 font-bold text-lg mb-4">₹ {item.price.toLocaleString("en-IN")}</p>
-                    <button
-                      onClick={() => {
-                      const user = JSON.parse(localStorage.getItem("user"));
-                      if (!user) {
-                        alert("Please login first");
-                        return;
-                      }
-                      addToWishlist(item);
-                    }}
-                      className="bg-red-500 text-white px-3 py-1 rounded mb-3 w-full hover:bg-red-600"
-                    >
-                      Add to Wishlist
-                    </button>
+                    {(!user || user.role === "buyer") && (
+                      <button
+                        onClick={() => {
+                          if (!user) {
+                            toast.error("Please login first to save properties!");
+                            return;
+                          }
+                          addToWishlist(item);
+                        }}
+                        className="bg-red-500 text-white px-3 py-1 rounded mb-3 w-full hover:bg-red-600 transition"
+                      >
+                        Add to Wishlist
+                      </button>
+                    )}
                     <button 
                       onClick={() => handleBuyNow(item)} 
                       className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-semibold mb-2 transition"
