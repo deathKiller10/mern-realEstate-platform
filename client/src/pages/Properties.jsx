@@ -153,7 +153,7 @@ export default function Properties() {
                   />
                   <div className="p-4">
                     <h3 className="font-bold text-lg truncate mb-1">{item.title}</h3>
-                    <p className="text-gray-500 text-sm mb-2">📍 {item.location}</p>
+                    <p className="text-gray-500 text-sm mb-2"> {item.location}</p>
                     <p className="text-blue-600 font-bold text-lg mb-4">₹ {item.price.toLocaleString("en-IN")}</p>
                     <button
                       onClick={() => {

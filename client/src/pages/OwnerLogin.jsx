@@ -1,135 +1,8 @@
-// import { useState, useContext } from "react";
-// import { AuthContext } from "../context/Authcontext";
-// import { NavLink, useNavigate } from "react-router-dom";
-
-// function OwnerLogin() {
-//   const { login } = useContext(AuthContext);
-//   const navigate = useNavigate();  
-//   const [formdata, setForm] = useState({
-//     email: "",
-//     password: "",
-//   });
-
-//   const handleChange = (d) => {
-//     setForm({
-//       ...formdata,
-//       [d.target.name]: d.target.value,
-//     });
-//   };
-
-//   const validatechange = async () => {
-//   const { email, password } = formdata;
-
-//   if (!email || !password) {
-//     alert("Please fill all fields");
-//     return;
-//   }
-
-//   try {
-//     const res = await fetch("http://localhost:5000/api/auth/login", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({ email, password })
-//     });
-
-//     const data = await res.json();
-
-//     console.log("LOGIN RESPONSE:", data); // 🔥 DEBUG
-
-//     if (res.ok) {
-//       console.log("TOKEN FOUND:", data.token);
-
-//       localStorage.setItem("token", data.token);
-//       localStorage.setItem("user", JSON.stringify(data.user));
-      
-//       if (data.user.role !== "owner") {
-//         alert("You are not an owner!");
-//         return;
-//       }  
-
-//       login(data.user, data.token); 
-      
-//       alert("Login Successful!");
-      
-//       navigate("/ownerdashboard");
-//     } 
-//     else {
-//       alert(data.message || "Login failed");
-//     }
-
-//   } catch (error) {
-//     console.log(error);
-//     alert("Server error");
-//   }
-// };
-
-//   return (
-//     <div className="min-h-screen flex justify-center items-center bg-blue-900 bg-opacity-90">
-
-//       <div className="bg-white p-10 rounded-lg shadow-lg w-96">
-
-//         <h2 className="text-2xl font-bold text-center text-blue-900 mb-6">
-//           Property Owner Login
-//         </h2>
-
-//         <input
-//           type="text"
-//           name="email"
-//           placeholder="Email Id"
-//           onChange={handleChange}
-//           className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400 "
-//         /><br></br><br></br>
-
-//         <input
-//           type="password"
-//           name="password"
-//           placeholder="Password"
-//           onChange={handleChange}
-//           className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-//         /><br></br>
-//         <p className="text-right text-sm mb-3">
-//         <NavLink
-//           to="/forgot-password"
-//           className="text-blue-500 hover:underline"
-//         >
-//           Forgot Password?
-//         </NavLink>
-//       </p>
-//         <button
-//           onClick={validatechange}
-//           className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded"
-//         >
-//           Login
-//         </button>
-
-//         <p className="text-center mt-4">
-//           Don't have an account?{" "}
-//           <NavLink
-//             to="/ownerregister"
-//             className="text-green-500 font-medium"
-//           >
-//             Create New Account
-//           </NavLink>
-//         </p>
-
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default OwnerLogin;
-
-
-
-
-
-
-
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/Authcontext";
 import { NavLink, useNavigate } from "react-router-dom";
+import eyeOpen from "../assets/eye-open.png";
+import eyeClosed from "../assets/eye-closed.png";
 import toast from "react-hot-toast";
 
 function OwnerLogin() {
@@ -137,6 +10,7 @@ function OwnerLogin() {
   const navigate = useNavigate();  
   const [formdata, setForm] = useState({ email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (d) => {
     setForm({ ...formdata, [d.target.name]: d.target.value });
@@ -162,7 +36,6 @@ function OwnerLogin() {
       const data = await res.json();
 
       if (res.ok) {
-        // FIXED BUG: Check role BEFORE saving to localStorage!
         if (data.user.role !== "owner") {
           toast.error("Account mismatch! Please use the Buyer login page.", { id: toastId });
           return;
@@ -198,13 +71,23 @@ function OwnerLogin() {
             onChange={handleChange}
             className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
           />
-          <input
-            type="password"
+          <div className="relative mb-3">
+            <input
+            type={showPassword ? "text" : "password"}
             name="password"
+            value={formdata.password}
+            onChange={handleChange}  
             placeholder="Password"
-            onChange={handleChange}
-            className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-          />
+            className="w-full border p-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
+          
+            <img
+              src={showPassword ? eyeOpen : eyeClosed}
+              alt="toggle password"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 w-6 h-6 cursor-pointer hover:scale-110 transition"
+            />
+          </div>
           
           <div className="text-right">
             <NavLink to="/forgot-password" className="text-sm text-blue-500 hover:underline">

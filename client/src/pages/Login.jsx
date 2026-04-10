@@ -1,5 +1,7 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/Authcontext";
+import eyeOpen from "../assets/eye-open.png";
+import eyeClosed from "../assets/eye-closed.png";
 import { NavLink, useNavigate } from "react-router-dom";
 
 function Login() {
@@ -9,7 +11,7 @@ function Login() {
     email: "", // Changed from username to email to match backend
     password: "",
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleChange = (d) => {
     setForm({
       ...formdata,
@@ -37,16 +39,21 @@ function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        if (data.user.role !== "admin") {
+        if (!data.user || data.user.role !== "admin") {
           alert("Access Denied: You are not an Admin!");
           return;
-        }  
-        
-        // Save to context and local storage
-        login(data.user, data.token); 
+        }
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+
+        // Context login
+        login(data.user, data.token);
+
         alert("Admin Login Successful!");
         navigate("/");
-      } else {
+      } 
+      else {
         alert(data.message || "Invalid credentials");
       }
     } catch (error) {
@@ -70,13 +77,23 @@ function Login() {
           className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400 "
         /><br></br><br></br>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-        /><br></br><br></br>
+        <div className="relative mb-3">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formdata.password}
+                    onChange={handleChange}  
+                    placeholder="Password"
+                    className="w-full border p-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                  />
+        
+                  <img
+                    src={showPassword ? eyeOpen : eyeClosed}
+                    alt="toggle password"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 w-6 h-6 cursor-pointer hover:scale-110 transition"
+                  />
+                </div>
 
         <button
           onClick={validatechange}
