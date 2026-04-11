@@ -55,8 +55,15 @@ export default function Inbox() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      setActiveThread(res.data.thread);
-      setThreads(threads.map(t => t._id === res.data.thread._id ? res.data.thread : t));
+      const updatedThread = {
+        ...res.data.thread,
+        property: activeThread.property,
+        buyer: activeThread.buyer,
+        owner: activeThread.owner
+      };
+
+      setActiveThread(updatedThread);
+      setThreads(threads.map(t => t._id === updatedThread._id ? updatedThread : t));
       setReplyText("");
 
       toast.success('Message sent!', { id: toastId });
@@ -162,8 +169,8 @@ export default function Inbox() {
 
                 {/* Reply Input or Disabled Notice */}
                 <div className="p-4 bg-white border-t">
-                  {/* FIX: Use the isDeleted flag we set up on the backend */}
-                  {!activeThread.property?.isDeleted ? (
+                  {/* FIX: Check both isDeleted and status === 'sold' */}
+                  {!activeThread.property?.isDeleted && activeThread.property?.status !== "sold" ? (
                     <form onSubmit={handleReply} className="flex gap-2">
                       <input 
                         type="text" 
@@ -178,7 +185,9 @@ export default function Inbox() {
                     </form>
                   ) : (
                     <div className="text-center py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 font-medium">
-                      🚫 This property has been removed. Replies are disabled.
+                      🚫 {activeThread.property?.status === "sold" 
+                          ? "This property has been sold." 
+                          : "This property has been removed."} Replies are disabled.
                     </div>
                   )}
                 </div>
