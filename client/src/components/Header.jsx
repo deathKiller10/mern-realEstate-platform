@@ -15,7 +15,6 @@ import {
   PlusCircle,
   LayoutDashboard,
   MessageCircle,
-  Settings,
   Shield,
   X,
   Menu,
@@ -256,15 +255,6 @@ export default function Header() {
                           <span>Admin Dashboard</span>
                         </NavLink>
                       )}
-
-                      <NavLink 
-                        to="/profile" 
-                        onClick={() => setShowDropdown(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-blue-50 transition-colors"
-                      >
-                        <Settings className="w-4 h-4" />
-                        <span>Settings</span>
-                      </NavLink>
                     </div>
 
                     {/* Logout */}

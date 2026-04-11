@@ -182,7 +182,7 @@ function About() {
         {/* Footer Note */}
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            MERN Stack • Real Estate Platform • Academic Project 2024
+            MERN Stack • Real Estate Platform • Academic Project 2026
           </p>
         </div>
       </div>

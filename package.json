@@ -1,0 +1,8 @@
+{
+  "name": "real-estate-platform",
+  "version": "1.0.0",
+  "description": "Master package.json for quick installations",
+  "scripts": {
+    "install:all": "npm install --prefix client && npm install --prefix server/api-gateway && npm install --prefix server/user-service && npm install --prefix server/property-service && npm install --prefix server/communication-service && npm install --prefix server/payment-service"
+  }
+}
