@@ -69,12 +69,23 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-5 text-base font-semibold text-gray-700">
           <NavLink to="/" className="hover:text-blue-600 transition-colors">Home</NavLink>
           <NavLink to="/properties" className="hover:text-blue-600 transition-colors">Properties</NavLink>
-          <NavLink to="/ownerdetails" className="hover:text-blue-600 transition-colors">Post Property</NavLink>
-          <NavLink to="/my-bookings" onClick={() => setShowDropdown(false)} className="block px-4 py-3 hover:bg-blue-50">
-            My Bookings
-          </NavLink>
+          
+          {/* 🔒 ONLY OWNERS SEE THIS */}
+          {user?.role === "owner" && (
+            <NavLink to="/ownerdetails" className="hover:text-blue-600 transition-colors">Post Property</NavLink>
+          )}
+
+          {/* 🔒 ONLY BUYERS SEE THESE */}
+          {user?.role === "buyer" && (
+            <>
+              <NavLink to="/my-bookings" onClick={() => setShowDropdown(false)} className="hover:text-blue-600 transition-colors">
+                My Bookings
+              </NavLink>
+              <NavLink to="/wishlist" className="hover:text-blue-600 transition-colors">Wishlist</NavLink>
+            </>
+          )}
+
           <NavLink to="/about" className="hover:text-blue-600 transition-colors">About</NavLink>
-          <NavLink to="/wishlist">Wishlist</NavLink>
 
           {/* DESKTOP SEARCH */}
           <form
@@ -202,11 +213,26 @@ export default function Header() {
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-t shadow-lg flex flex-col z-40">
           <NavLink to="/" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Home</NavLink>
           <NavLink to="/properties" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Properties</NavLink>
-          <NavLink to="/ownerdetails" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Post Property</NavLink>
+          
+          {/* 🔒 ONLY OWNERS SEE THIS */}
+          {user?.role === "owner" && (
+            <NavLink to="/ownerdetails" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Post Property</NavLink>
+          )}
+
+          {/* 🔒 ONLY BUYERS SEE THESE */}
+          {user?.role === "buyer" && (
+            <>
+              <NavLink to="/my-bookings" onClick={() => { setIsMobileOpen(false); setShowDropdown(false); }} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                My Bookings
+              </NavLink>
+              <NavLink to="/wishlist" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                Wishlist
+              </NavLink>
+            </>
+          )}
+
           <NavLink to="/about" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">About</NavLink>
-          <NavLink to="/my-bookings" onClick={() => setShowDropdown(false)} className="block px-4 py-3 hover:bg-blue-50">
-            My Bookings
-          </NavLink>
+          
           <form onSubmit={handleSearch} className="flex px-6 py-4 bg-gray-50">
             <input
               className="border border-gray-300 px-4 py-2 w-full rounded-l-lg outline-none focus:border-blue-500"
