@@ -139,7 +139,6 @@ export default function Footer() {
                 Help Center
               </NavLink>
             </div>
-            
             <p className="text-xs text-gray-500">
               Made with ❤️ in India
             </p>
