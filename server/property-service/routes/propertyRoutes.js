@@ -128,7 +128,7 @@ router.get("/", async (req, res) => {
     const propertiesWithOwners = await Promise.all(
       properties.map(async (property) => {
         try {
-          const userRes = await fetch(`http://localhost:5001/api/auth/user/${property.owner}`);
+          const userRes = await fetch(`http://localhost:5002/api/auth/user/${property.owner}`);
           if (userRes.ok) {
             const userData = await userRes.json();
             property.owner = userData; 
