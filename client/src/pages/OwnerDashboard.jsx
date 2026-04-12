@@ -113,7 +113,22 @@ export default function OwnerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {myProperties.map((item) => (
             <div key={item._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden border">
-              <img src={`http://localhost:5000/${item.images?.[0]}`} alt={item.title} className="w-full h-48 object-cover bg-gray-100" onError={(e) => { e.target.src = "https://via.placeholder.com/400x200?text=No+Image" }} />
+              <img 
+                // 1. Fix Windows backslashes (\) by converting them to forward slashes (/)
+                src={
+                  item.images?.[0] 
+                    ? `http://localhost:5000/${item.images[0].replace(/\\/g, "/")}` 
+                    : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"
+                } 
+                alt={item.title} 
+                className="w-full h-48 object-cover bg-gray-100" 
+                onError={(e) => { 
+                  // 2. CRITICAL: Nullify the error handler so it can NEVER infinite loop
+                  e.target.onerror = null; 
+                  // 3. Use a highly reliable fallback image instead of placeholder.com
+                  e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"; 
+                }} 
+              />
               <div className="p-5">
                 <h3 className="font-bold text-xl truncate mb-1" title={item.title}>{item.title}</h3>
                 <p className="text-blue-600 font-bold text-lg mb-4">₹ {item.price.toLocaleString("en-IN")}</p>

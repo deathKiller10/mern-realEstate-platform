@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import eyeOpen from "../assets/eye-open.png";
+import eyeClosed from "../assets/eye-closed.png";
 import toast from "react-hot-toast";
 
 function BuyerRegister() {
   const navigate = useNavigate();  
   const [formdata, setForm] = useState({ fname: "", lname: "", mobile: "", email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const handlechange = (d) => {
     setForm({ ...formdata, [d.target.name]: d.target.value });
   }; 
@@ -68,7 +70,23 @@ function BuyerRegister() {
           <input type="text" name="lname" value={formdata.lname} placeholder="Last name" className="w-full border p-3 rounded" onChange={handlechange} />
           <input type="text" name="mobile" value={formdata.mobile} placeholder="Mobile No." className="w-full border p-3 rounded" onChange={handlechange} />
           <input type="email" name="email" value={formdata.email} placeholder="Email" className="w-full border p-3 rounded" onChange={handlechange} />
-          <input type="password" name="password" value={formdata.password} placeholder="Password" className="w-full border p-3 rounded" onChange={handlechange} />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formdata.password}
+              placeholder="Password"
+              className="w-full border p-3 pr-12 rounded"
+              onChange={handlechange}
+            />
+
+            <img
+              src={showPassword ? eyeOpen : eyeClosed}
+              alt="toggle password"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 w-6 h-6 cursor-pointer hover:scale-110 transition"
+            />
+          </div>
 
           <button 
             disabled={isSubmitting} 

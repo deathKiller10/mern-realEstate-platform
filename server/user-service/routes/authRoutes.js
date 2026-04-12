@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const User = require("../models/User");
 
@@ -234,6 +235,47 @@ router.get("/user/:id", async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+/*
+GET WISHLIST
+GET /api/auth/wishlist
+*/
+router.get("/wishlist", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    res.json(user.wishlist || []);
+  } catch (error) {
+    res.status(500).json({ message: "Server error fetching wishlist" });
+  }
+});
+
+/*
+TOGGLE WISHLIST
+POST /api/auth/wishlist/:propertyId
+*/
+router.post("/wishlist/:propertyId", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const { propertyId } = req.params;
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isSaved = user.wishlist.includes(propertyId);
+
+    if (isSaved) {
+      // Remove it
+      user.wishlist = user.wishlist.filter(id => id !== propertyId);
+    } else {
+      // Add it
+      user.wishlist.push(propertyId);
+    }
+
+    await user.save();
+    res.json(user.wishlist);
+  } catch (error) {
+    res.status(500).json({ message: "Server error updating wishlist" });
   }
 });
 

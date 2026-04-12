@@ -2,14 +2,37 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const connectDB = require("./config/db"); // Assuming you copied db.js here
+const bcrypt = require("bcryptjs"); // 👈 Added for password hashing
+const User = require("./models/User"); // 👈 Added to access the User database
+const connectDB = require("./config/db"); 
 
 // Import specific routes for this service
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 dotenv.config();
-connectDB();
+
+// Connect to DB and THEN seed the Admin user
+connectDB().then(async () => {
+  try {
+    const adminExists = await User.findOne({ role: "admin" });
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      await User.create({
+        name: "Super Admin",
+        mobile: "0000000000",
+        email: "admin@realestate.com",
+        password: hashedPassword,
+        role: "admin",
+      });
+      console.log("✅ Default Admin Created -> Email: admin@realestate.com | Pass: admin123");
+    } else {
+      console.log(`⚡ Admin already exists in DB with email: ${adminExists.email}`);
+    }
+  } catch (error) {
+    console.error("Failed to seed admin:", error);
+  }
+});
 
 const app = express();
 

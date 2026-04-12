@@ -1,240 +1,35 @@
-// import { NavLink, useNavigate } from "react-router-dom";
-// import { useContext, useState, useEffect } from "react";
-// import { AuthContext } from "../context/Authcontext";
-// import logo from "../assets/NexEstate.png";
-
-// export default function Header() {
-//   const { user, logout } = useContext(AuthContext);
-//   const [unreadCount, setUnreadCount] = useState(0);
-
-//   let displayName = "";
-//   if (user) {
-//     if (typeof user === "string") {
-//       displayName = user;
-//     } else {
-//       displayName =
-//         user.name ||
-//         (user.email
-//           ? user.email.split("@")[0].replace(/[0-9]/g, "")
-//           : "User");
-//     }
-//   }
-
-//   const [showDropdown, setShowDropdown] = useState(false);
-//   const [searchTerm, setSearchTerm] = useState(""); // RESTORED
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     if (user && (user.role === 'buyer' || user.role === 'owner')) {
-//       const fetchUnread = async () => {
-//         try {
-//           const token = localStorage.getItem("token");
-//           const res = await fetch("http://localhost:5000/api/messages/unread", {
-//             headers: { Authorization: `Bearer ${token}` }
-//           });
-//           const data = await res.json();
-//           setUnreadCount(data.unreadCount || 0);
-//         } catch (err) { console.log(err); }
-//       };
-
-//       fetchUnread(); // Check immediately on load
-//       const interval = setInterval(fetchUnread, 10000); // Check every 10 seconds
-//       return () => clearInterval(interval);
-//     }
-//   }, [user]);
-
-//   // RESTORED
-//   const handleSearch = (e) => {
-//     e.preventDefault();
-//     if (searchTerm.trim() !== "") {
-//       navigate(`/search?query=${searchTerm}`);
-//     }
-//   };
-
-//   return (
-//     <header className="bg-white shadow-md px-6 py-3 relative">
-//       <div className="flex items-center justify-between">
-
-//         {/* LOGO */}
-//         <NavLink to="/" className="flex items-center">
-//           <img src={logo} alt="logo" className="h-14" />
-//         </NavLink>
-
-//         {/* NAVIGATION (Desktop Only) */}
-//         <div className="hidden md:flex items-center gap-4 text-base font-medium">
-//           <NavLink to="/" className="hover:text-blue-600">Home</NavLink>
-//           {/* FIXED: Pointing to /properties instead of /buyerlogin */}
-//           <NavLink to="/properties" className="hover:text-blue-600">Properties</NavLink>
-//           {/* FIXED: Pointing to /ownerdetails so the protected route handles the logic */}
-//           <NavLink to="/ownerdetails" className="hover:text-blue-600">Post Property</NavLink>
-//           <NavLink to="/about" className="hover:text-blue-600">About</NavLink>
-          
-//           {/* RESTORED SEARCH */}
-//           <form
-//             onSubmit={handleSearch}
-//             className="flex items-center border rounded-full overflow-hidden ml-4"
-//           >
-//             <input
-//               type="text"
-//               placeholder="Search..."
-//               value={searchTerm}
-//               onChange={(e) => setSearchTerm(e.target.value)}
-//               className="px-3 py-1 outline-none w-32 focus:w-48 transition-all duration-300"
-//             />
-//             <button className="bg-blue-600 text-white px-3 py-1 text-sm">
-//               Search
-//             </button>
-//           </form>
-//         </div>
-
-//         {/* RIGHT SIDE */}
-//         <div className="flex items-center gap-3">
-//           {user ? (
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowDropdown(!showDropdown)}
-//                 className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full"
-//               >
-//                 <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center uppercase">
-//                   {displayName ? displayName.charAt(0) : "U"}
-//                 </div>
-//                 <span className="hidden sm:block">{displayName}</span>
-//               </button>
-
-//               {showDropdown && (
-//                 <div className="absolute right-0 mt-2 bg-white border rounded shadow-md w-48 z-50">
-//                   {user.role === "owner" && (
-//                     <>
-//                       <NavLink
-//                         to="/ownerdashboard"
-//                         onClick={() => setShowDropdown(false)}
-//                         className="block px-4 py-2 hover:bg-gray-100"
-//                       >
-//                         My Dashboard
-//                       </NavLink>
-//                       <NavLink
-//                         to="/ownerdetails"
-//                         onClick={() => setShowDropdown(false)}
-//                         className="block px-4 py-2 hover:bg-gray-100"
-//                       >
-//                         Add Property
-//                       </NavLink>
-//                     </>
-//                   )}
-//                   {/* Add Inbox for both Buyers and Owners */}
-//                   {(user.role === "buyer" || user.role === "owner") && (
-//                     <NavLink to="/inbox" onClick={() => setShowDropdown(false)} className="block px-4 py-2 hover:bg-gray-100 font-semibold text-blue-600 border-b">
-//                       <span>Inbox</span>
-//                       {unreadCount > 0 && (
-//                         <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
-//                           {unreadCount}
-//                         </span>
-//                       )}
-//                     </NavLink>
-//                   )}
-
-//                   {user.role === "admin" && (
-//                     <NavLink
-//                       to="/admindashboard"
-//                       onClick={() => setShowDropdown(false)}
-//                       className="block px-4 py-2 hover:bg-gray-100"
-//                     >
-//                       Admin Dashboard
-//                     </NavLink>
-//                   )}
-
-//                   <button
-//                     onClick={() => {
-//                       logout();
-//                       setShowDropdown(false);
-//                       navigate("/");
-//                     }}
-//                     className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
-//                   >
-//                     Logout
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           ) : (
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowDropdown(!showDropdown)}
-//                 className="bg-blue-600 text-white px-4 py-2 rounded"
-//               >
-//                 Login ▾
-//               </button>
-
-//               {showDropdown && (
-//                 <div className="absolute right-0 mt-2 bg-white border rounded shadow-md w-32 z-50">
-//                   <NavLink
-//                     to="/buyerlogin"
-//                     className="block px-3 py-2 hover:bg-gray-100"
-//                     onClick={() => setShowDropdown(false)}
-//                   >
-//                     Buyer
-//                   </NavLink>
-//                   <NavLink
-//                     to="/ownerlogin"
-//                     className="block px-3 py-2 hover:bg-gray-100"
-//                     onClick={() => setShowDropdown(false)}
-//                   >
-//                     Owner
-//                   </NavLink>
-//                   <NavLink
-//                     to="/login"
-//                     className="block px-3 py-2 hover:bg-gray-100 text-blue-600"
-//                     onClick={() => setShowDropdown(false)}
-//                   >
-//                     Admin
-//                   </NavLink>
-//                 </div>
-//               )}
-//             </div>
-//           )}
-
-//           {/* RESTORED MOBILE MENU BUTTON */}
-//           <button
-//             onClick={() => setShowDropdown(!showDropdown)}
-//             className="md:hidden text-2xl ml-2"
-//           >
-//             ☰
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* RESTORED MOBILE MENU DROPDOWN */}
-//       {showDropdown && !user && (
-//         <div className="md:hidden mt-3 flex flex-col gap-3 border-t pt-3">
-//           <NavLink to="/" onClick={() => setShowDropdown(false)}>Home</NavLink>
-//           <NavLink to="/properties" onClick={() => setShowDropdown(false)}>Properties</NavLink>
-//           <NavLink to="/ownerdetails" onClick={() => setShowDropdown(false)}>Post Property</NavLink>
-//           <NavLink to="/about" onClick={() => setShowDropdown(false)}>About</NavLink>
-
-//           <form onSubmit={handleSearch} className="flex mt-2">
-//             <input
-//               className="border px-2 py-1 w-full rounded-l"
-//               placeholder="Search..."
-//               value={searchTerm}
-//               onChange={(e) => setSearchTerm(e.target.value)}
-//             />
-//             <button className="bg-blue-600 text-white px-3 py-1 rounded-r">Go</button>
-//           </form>
-//         </div>
-//       )}
-//     </header>
-//   );
-// }
-
-
 import { NavLink, useNavigate } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "../context/Authcontext";
 import logo from "../assets/NexEstate.png";
+import { 
+  Search, 
+  ChevronDown, 
+  LogOut, 
+  User, 
+  Home, 
+  Building2, 
+  Heart, 
+  BookOpen, 
+  Info, 
+  PlusCircle,
+  LayoutDashboard,
+  MessageCircle,
+  Shield,
+  X,
+  Menu,
+  Bell
+} from "lucide-react";
 
 export default function Header() {
   const { user, logout } = useContext(AuthContext);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   let displayName = "";
   if (user) {
@@ -249,12 +44,25 @@ export default function Header() {
     }
   }
 
-  // 1. SEPARATED STATES
-  const [showDropdown, setShowDropdown] = useState(false); // For User/Login Menu
-  const [isMobileOpen, setIsMobileOpen] = useState(false); // For Hamburger Menu
-  
-  const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate();
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (user && (user.role === 'buyer' || user.role === 'owner')) {
@@ -279,166 +87,307 @@ export default function Header() {
     e.preventDefault();
     if (searchTerm.trim() !== "") {
       navigate(`/search?query=${searchTerm}`);
-      setIsMobileOpen(false); // Close menu on search
+      setIsMobileOpen(false);
+      setSearchTerm("");
     }
   };
 
-  return (
-    // Make header relative and high z-index so dropdowns overlap content below
-    <header className="bg-white shadow-md relative z-50">
-      <div className="px-6 py-3 flex items-center justify-between max-w-7xl mx-auto">
-        
-        {/* LOGO */}
-        <NavLink to="/" className="flex items-center" onClick={() => setIsMobileOpen(false)}>
-          <img src={logo} alt="logo" className="h-14" />
-        </NavLink>
+  const handleLogout = () => {
+    logout();
+    setShowDropdown(false);
+    navigate("/");
+  };
 
-        {/* NAVIGATION (Desktop Only) */}
-        <div className="hidden md:flex items-center gap-5 text-base font-semibold text-gray-700">
-          <NavLink to="/" className="hover:text-blue-600 transition-colors">Home</NavLink>
-          <NavLink to="/properties" className="hover:text-blue-600 transition-colors">Properties</NavLink>
-          <NavLink to="/ownerdetails" className="hover:text-blue-600 transition-colors">Post Property</NavLink>
-          <NavLink to="/about" className="hover:text-blue-600 transition-colors">About</NavLink>
-          <NavLink to="/wishlist">Wishlist</NavLink>
+  const navLinks = [
+    { to: "/", label: "Home", icon: Home },
+    { to: "/properties", label: "Properties", icon: Building2 },
+    ...(user?.role === "owner" ? [{ to: "/ownerdetails", label: "Post Property", icon: PlusCircle }] : []),
+    ...(user?.role === "buyer" ? [
+      { to: "/my-bookings", label: "My Bookings", icon: BookOpen },
+      { to: "/wishlist", label: "Wishlist", icon: Heart }
+    ] : []),
+    { to: "/about", label: "About", icon: Info }
+  ];
+
+  return (
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? "bg-white/95 backdrop-blur-md shadow-lg" 
+        : "bg-white shadow-md"
+    }`}>
+      <div className="px-4 md:px-6 py-3">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          
+          {/* LOGO */}
+          <NavLink to="/" className="flex items-center group" onClick={() => setIsMobileOpen(false)}>
+            <img src={logo} alt="NexEstate" className="h-12 md:h-14 transition-transform group-hover:scale-105" />
+          </NavLink>
+
+          {/* DESKTOP NAVIGATION */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `relative px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      isActive
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                    }`
+                  }
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{link.label}</span>
+                </NavLink>
+              );
+            })}
+          </div>
 
           {/* DESKTOP SEARCH */}
-          <form
-            onSubmit={handleSearch}
-            className="flex items-center border border-gray-300 rounded-full overflow-hidden ml-2 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all"
-          >
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-1.5 outline-none w-32 focus:w-48 transition-all duration-300 text-sm"
-            />
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 text-sm font-medium transition-colors">
-              Search
-            </button>
-          </form>
-        </div>
+          <div className="hidden lg:block">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search properties..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64 pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </form>
+          </div>
 
-        {/* RIGHT SIDE (User Controls & Hamburger) */}
-        <div className="flex items-center gap-3">
-          {user ? (
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowDropdown(!showDropdown);
-                  setIsMobileOpen(false); // Close mobile nav if open
-                }}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 transition-colors px-3 py-1 rounded-full border"
+          {/* RIGHT SECTION */}
+          <div className="flex items-center gap-3" ref={dropdownRef}>
+            {/* Notifications */}
+            {user && (user.role === 'buyer' || user.role === 'owner') && (
+              <NavLink
+                to="/inbox"
+                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Messages"
               >
-                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold uppercase shadow-sm">
-                  {displayName ? displayName.charAt(0) : "U"}
-                </div>
-                <span className="hidden sm:block font-medium text-gray-700">{displayName}</span>
-              </button>
+                <MessageCircle className="w-5 h-5 text-gray-700" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </NavLink>
+            )}
 
-              {/* USER PROFILE DROPDOWN */}
-              {showDropdown && (
-                <div className="absolute right-0 mt-3 bg-white border rounded-lg shadow-xl w-52 overflow-hidden z-50">
-                  {user.role === "owner" && (
-                    <>
-                      <NavLink to="/ownerdashboard" onClick={() => setShowDropdown(false)} className="block px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium">
-                        My Dashboard
-                      </NavLink>
-                      <NavLink to="/ownerdetails" onClick={() => setShowDropdown(false)} className="block px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium border-b">
-                        Add Property
-                      </NavLink>
-                    </>
-                  )}
-                  
-                  {(user.role === "buyer" || user.role === "owner") && (
-                    <NavLink to="/inbox" onClick={() => setShowDropdown(false)} className="flex items-center justify-between px-4 py-3 hover:bg-blue-50 text-blue-700 font-bold border-b">
-                      <span>Inbox</span>
-                      {unreadCount > 0 && (
-                        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
-                          {unreadCount} New
-                        </span>
+            {/* USER PROFILE / LOGIN */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-2 hover:bg-gray-100 transition-all duration-200 pl-2 pr-3 py-1.5 rounded-xl border border-gray-200"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold shadow-md">
+                    {displayName ? displayName.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div className="hidden md:block text-left">
+                    <div className="text-sm font-semibold text-gray-900">{displayName}</div>
+                    <div className="text-xs text-gray-500 capitalize">{user.role}</div>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* DROPDOWN MENU */}
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                    {/* User Info */}
+                    <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+                      <p className="font-semibold text-gray-900">{displayName}</p>
+                      <p className="text-sm text-gray-600 capitalize">{user.role}</p>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      {user.role === "owner" && (
+                        <>
+                          <NavLink 
+                            to="/ownerdashboard" 
+                            onClick={() => setShowDropdown(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-blue-50 transition-colors"
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>Dashboard</span>
+                          </NavLink>
+                          <NavLink 
+                            to="/ownerdetails" 
+                            onClick={() => setShowDropdown(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-blue-50 transition-colors"
+                          >
+                            <PlusCircle className="w-4 h-4" />
+                            <span>Add Property</span>
+                          </NavLink>
+                        </>
                       )}
+                      
+                      {(user.role === "buyer" || user.role === "owner") && (
+                        <NavLink 
+                          to="/inbox" 
+                          onClick={() => setShowDropdown(false)}
+                          className="flex items-center justify-between px-4 py-2.5 text-gray-700 hover:bg-blue-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <MessageCircle className="w-4 h-4" />
+                            <span>Messages</span>
+                          </div>
+                          {unreadCount > 0 && (
+                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </NavLink>
+                      )}
+
+                      {user.role === "admin" && (
+                        <NavLink 
+                          to="/admindashboard" 
+                          onClick={() => setShowDropdown(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-blue-50 transition-colors"
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span>Admin Dashboard</span>
+                        </NavLink>
+                      )}
+                    </div>
+
+                    {/* Logout */}
+                    <div className="border-t border-gray-100 py-2">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors font-medium"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-5 py-2 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Login</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* LOGIN DROPDOWN */}
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                    <NavLink 
+                      to="/buyerlogin" 
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-gray-700 transition-colors"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Buyer Login</span>
                     </NavLink>
-                  )}
-
-                  {user.role === "admin" && (
-                    <NavLink to="/admindashboard" onClick={() => setShowDropdown(false)} className="block px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium border-b">
-                      Admin Dashboard
+                    <NavLink 
+                      to="/ownerlogin" 
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-gray-700 transition-colors"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <Building2 className="w-4 h-4" />
+                      <span>Owner Login</span>
                     </NavLink>
-                  )}
+                    <NavLink 
+                      to="/login" 
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-blue-600 font-semibold border-t border-gray-100 transition-colors"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <Shield className="w-4 h-4" />
+                      <span>Admin Portal</span>
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+            )}
 
-                  <button
-                    onClick={() => {
-                      logout();
-                      setShowDropdown(false);
-                      navigate("/");
-                    }}
-                    className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold transition-colors"
-                  >
-                    Logout
-                  </button>
-                </div>
+            {/* MOBILE MENU TOGGLE */}
+            <button
+              onClick={() => {
+                setIsMobileOpen(!isMobileOpen);
+                setShowDropdown(false);
+              }}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {isMobileOpen ? (
+                <X className="w-6 h-6 text-gray-700" />
+              ) : (
+                <Menu className="w-6 h-6 text-gray-700" />
               )}
-            </div>
-          ) : (
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowDropdown(!showDropdown);
-                  setIsMobileOpen(false);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm"
-              >
-                Login ▾
-              </button>
-
-              {/* LOGIN DROPDOWN */}
-              {showDropdown && (
-                <div className="absolute right-0 mt-3 bg-white border rounded-lg shadow-xl w-36 overflow-hidden z-50">
-                  <NavLink to="/buyerlogin" className="block px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium" onClick={() => setShowDropdown(false)}>
-                    Buyer
-                  </NavLink>
-                  <NavLink to="/ownerlogin" className="block px-4 py-3 hover:bg-blue-50 text-gray-700 font-medium" onClick={() => setShowDropdown(false)}>
-                    Owner
-                  </NavLink>
-                  <NavLink to="/login" className="block px-4 py-3 hover:bg-blue-50 text-blue-700 font-bold border-t" onClick={() => setShowDropdown(false)}>
-                    Admin
-                  </NavLink>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 2. THE HAMBURGER BUTTON */}
-          <button
-            onClick={() => {
-              setIsMobileOpen(!isMobileOpen);
-              setShowDropdown(false); // Close user menu if open
-            }}
-            className="md:hidden text-3xl ml-2 text-gray-700 focus:outline-none"
-          >
-            {isMobileOpen ? "✖" : "☰"}
-          </button>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 3. MOBILE MENU SLIDE-DOWN */}
+      {/* MOBILE MENU */}
       {isMobileOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t shadow-lg flex flex-col z-40">
-          <NavLink to="/" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Home</NavLink>
-          <NavLink to="/properties" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Properties</NavLink>
-          <NavLink to="/ownerdetails" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">Post Property</NavLink>
-          <NavLink to="/about" onClick={() => setIsMobileOpen(false)} className="px-6 py-4 border-b text-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600">About</NavLink>
+        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t shadow-lg animate-in slide-in-from-top-2 duration-200">
+          <div className="max-h-[calc(100vh-80px)] overflow-y-auto">
+            {/* Mobile Search */}
+            <div className="p-4 bg-gray-50 border-b">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search properties..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </form>
+            </div>
 
-          <form onSubmit={handleSearch} className="flex px-6 py-4 bg-gray-50">
-            <input
-              className="border border-gray-300 px-4 py-2 w-full rounded-l-lg outline-none focus:border-blue-500"
-              placeholder="Search properties..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-r-lg font-bold">Go</button>
-          </form>
+            {/* Mobile Navigation */}
+            <div className="py-2">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-6 py-3.5 text-lg transition-colors ${
+                        isActive
+                          ? "text-blue-600 bg-blue-50 border-l-4 border-blue-600"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`
+                    }
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{link.label}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+
+            {/* Mobile User Info (if logged in) */}
+            {user && (
+              <div className="border-t border-gray-100 p-4 bg-gray-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-md">
+                    {displayName ? displayName.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{displayName}</p>
+                    <p className="text-sm text-gray-600 capitalize">{user.role}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </header>
