@@ -143,6 +143,7 @@ export default function Footer() {
             <p className="text-xs text-gray-500">
               Made with ❤️ in India
             </p>
+            <i class="fa-solid fa-angles-up"></i>
           </div>
         </div>
       </div>
