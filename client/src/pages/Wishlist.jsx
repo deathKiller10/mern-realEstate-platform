@@ -63,10 +63,11 @@ function Wishlist() {
               
               <NavLink 
                 to="/properties" 
-                className="group inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+                className="group inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-8 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-white"
+                style={{ color: 'white' }}
               >
-                <span>Browse Properties</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span className="text-white">Browse Properties</span>
+                <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
               </NavLink>
               
               <div className="mt-8 pt-8 border-t border-gray-100">
@@ -113,7 +114,7 @@ function Wishlist() {
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                     
-                    {/* NEW: SOLD OUT BADGE */}
+                    {/* SOLD OUT BADGE */}
                     {item.status === 'sold' && (
                       <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex flex-col items-center justify-center z-10">
                         <div className="bg-red-600 text-white font-black text-xl px-6 py-2 rounded-lg border-2 border-white/50 tracking-widest transform -rotate-12 shadow-2xl">

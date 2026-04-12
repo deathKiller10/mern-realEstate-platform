@@ -226,7 +226,7 @@ export default function Footer() {
                       href="mailto:support@nexestate.com" 
                       className="text-gray-700 hover:text-blue-600 transition-colors text-sm"
                     >
-                      support@nexestate.com
+                      nexestatesupport@test.com
                     </a>
                   </div>
                 </li>
@@ -236,7 +236,7 @@ export default function Footer() {
                   <div>
                     <span className="block text-xs text-gray-500">Address</span>
                     <span className="text-gray-700 text-sm">
-                      123 Real Estate Ave, Mumbai
+                      VIT Vellore, India
                     </span>
                   </div>
                 </li>
@@ -274,7 +274,7 @@ export default function Footer() {
               </div>
               
               <p className="text-xs text-gray-500">
-                Made with ❤️ in India
+                Made in India
               </p>
             </div>
           </div>
