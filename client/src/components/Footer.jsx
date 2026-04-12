@@ -83,14 +83,6 @@ export default function Footer() {
                   About Us
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/contact"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  Contact
-                </NavLink>
-              </li>
             </ul>
           </div>
 
