@@ -145,8 +145,8 @@ export default function Footer() {
             </p>
           </div>
         </div>
-        <i class="fa-solid fa-angles-up"></i>
       </div>
+      <i class="fa-solid fa-angles-up"></i>
     </footer>
   );
 }
