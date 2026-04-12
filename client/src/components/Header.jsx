@@ -120,7 +120,8 @@ export default function Header() {
           
           {/* LOGO */}
           <NavLink to="/" className="flex items-center group" onClick={() => setIsMobileOpen(false)}>
-            <img src={logo} alt="NexEstate" className="h-12 md:h-14 transition-transform group-hover:scale-105" />
+            {/* Increased height from h-12 to h-16 (mobile) and md:h-14 to md:h-20 (desktop) */}
+            <img src={logo} alt="NexEstate" className="h-16 md:h-20 transition-transform group-hover:scale-105" />
           </NavLink>
 
           {/* DESKTOP NAVIGATION */}
