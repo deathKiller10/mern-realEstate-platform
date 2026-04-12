@@ -221,7 +221,7 @@ function BuyerLogin() {
                       onChange={handleChange}
                       onFocus={() => setFocusedField('password')}
                       onBlur={() => setFocusedField(null)}
-                      className="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                      className="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all [&::-ms-reveal]:hidden"
                     />
                     <button
                       type="button"
@@ -268,7 +268,7 @@ function BuyerLogin() {
                       </>
                     ) : (
                       <>
-                        <span>→</span>
+                        {/* <span>→</span> */}
                         <span>Sign In to Dashboard</span>
                       </>
                     )}
@@ -282,7 +282,7 @@ function BuyerLogin() {
                     onClick={fillDemoCredentials}
                     className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 transition-colors"
                   >
-                    <Key className="w-4 h-4" />
+                    {/* <Key className="w-4 h-4" /> */}
                     <span>Use Demo Credentials</span>
                   </button>
                 </div>
@@ -296,15 +296,15 @@ function BuyerLogin() {
                       className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 group"
                     >
                       <span>Create buyer account</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      {/* <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /> */}
                     </NavLink>
                   </p>
                 </div>
 
                 {/* Footer Links */}
                 <div className="flex items-center justify-center gap-6 pt-4 text-xs">
-                  <NavLink to="/buyerlogin" className="text-gray-500 hover:text-gray-700">
-                    Buyer Login
+                  <NavLink to="/ownerlogin" className="text-gray-500 hover:text-gray-700">
+                    Owner Login
                   </NavLink>
                   <span className="text-gray-300">•</span>
                   <NavLink to="/about" className="text-gray-500 hover:text-gray-700">

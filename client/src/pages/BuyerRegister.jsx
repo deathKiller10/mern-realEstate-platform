@@ -319,7 +319,7 @@ function BuyerRegister() {
                     onClick={fillDemoDetails}
                     className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 transition-colors"
                   >
-                    <span>✨</span>
+                    {/* <span>✨</span> */}
                     <span>Fill Demo Details</span>
                   </button>
                 </div>

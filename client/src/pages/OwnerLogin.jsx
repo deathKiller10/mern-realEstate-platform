@@ -230,7 +230,7 @@ function OwnerLogin() {
                       onChange={handleChange}
                       onFocus={() => setFocusedField('password')}
                       onBlur={() => setFocusedField(null)}
-                      className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                      className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all [&::-ms-reveal]:hidden"
                     />
                     <button
                       type="button"
@@ -274,7 +274,7 @@ function OwnerLogin() {
                       <>
                         <LogIn className="w-5 h-5" />
                         <span>Sign In to Dashboard</span>
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        {/* <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /> */}
                       </>
                     )}
                   </span>
@@ -286,7 +286,7 @@ function OwnerLogin() {
                   onClick={fillDemoCredentials}
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors"
                 >
-                  <Key className="w-4 h-4" />
+                  {/* <Key className="w-4 h-4" /> */}
                   <span>Use Demo Credentials</span>
                 </button>
               </div>
