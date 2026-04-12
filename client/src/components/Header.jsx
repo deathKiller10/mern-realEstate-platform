@@ -147,19 +147,21 @@ export default function Header() {
             })}
           </div>
 
-          {/* DESKTOP SEARCH */}
-          <div className="hidden lg:block">
-            <form onSubmit={handleSearch} className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search properties..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64 pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </form>
-          </div>
+          {/* DESKTOP SEARCH - Only show if user is logged in */}
+          {user && (
+            <div className="hidden lg:block">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search properties..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64 pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </form>
+            </div>
+          )}
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-3" ref={dropdownRef}>
@@ -336,19 +338,21 @@ export default function Header() {
       {isMobileOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t shadow-lg animate-in slide-in-from-top-2 duration-200">
           <div className="max-h-[calc(100vh-80px)] overflow-y-auto">
-            {/* Mobile Search */}
-            <div className="p-4 bg-gray-50 border-b">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search properties..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </form>
-            </div>
+            {/* Mobile Search - Only show if user is logged in */}
+            {user && (
+              <div className="p-4 bg-gray-50 border-b">
+                <form onSubmit={handleSearch} className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search properties..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </form>
+              </div>
+            )}
 
             {/* Mobile Navigation */}
             <div className="py-2">
