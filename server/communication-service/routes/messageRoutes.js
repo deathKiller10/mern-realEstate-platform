@@ -34,7 +34,8 @@ router.get("/my-threads", authMiddleware, async (req, res) => {
                         _id: propData._id, 
                         title: propData.title, 
                         images: propData.images,
-                        isDeleted: false 
+                        isDeleted: false ,
+                        status: propData.status
                     };
                 } else {
                     thread.property = { _id: thread.property, title: "[Deleted Property]", images: [], isDeleted: true };
@@ -87,6 +88,10 @@ router.post("/send", authMiddleware, async (req, res) => {
       const propCheck = await fetch(`http://localhost:5002/api/properties/${propertyId}`);
       if (!propCheck.ok) {
         return res.status(400).json({ message: "Cannot send message. This property has been deleted." });
+      }
+      const propData = await propCheck.json();
+      if (propData.status === "sold") {
+        return res.status(400).json({ message: "Cannot send message. This property has been sold." });
       }
     } catch (error) {
       return res.status(500).json({ message: "Failed to verify property status. Try again later." });

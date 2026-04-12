@@ -80,20 +80,19 @@ POST /api/auth/login
 router.post("/login", async (req, res) => {
 
   try {
-
     const { email, password } = req.body;
-
-
     const user = await User.findOne({ email });
-
     if (!user) {
-
       return res.status(400).json({
         message: "Invalid email or password"
       });
-
     }
 
+    if (user.isBlocked) {
+      return res.status(403).json({ 
+        message: "Your account has been suspended by an administrator." 
+      });
+    }
 
     const isMatch = await bcrypt.compare(
       password,
@@ -101,13 +100,10 @@ router.post("/login", async (req, res) => {
     );
 
     if (!isMatch) {
-
       return res.status(400).json({
         message: "Invalid email or password"
       });
-
     }
-
 
     const token = jwt.sign(
       {
@@ -223,12 +219,10 @@ router.post("/reset-password/:token", async (req, res) => {
 
 /*
 GET USER BY ID (For Microservice Internal Communication)
-GET /api/auth/user/:id
 */
 router.get("/user/:id", async (req, res) => {
   try {
-    // We only select the name and email, just like .populate("owner", "name email") used to do!
-    const user = await User.findById(req.params.id).select("name email mobile");
+    const user = await User.findById(req.params.id).select("name email mobile isBlocked");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -276,6 +270,27 @@ router.post("/wishlist/:propertyId", authMiddleware, async (req, res) => {
     res.json(user.wishlist);
   } catch (error) {
     res.status(500).json({ message: "Server error updating wishlist" });
+  }
+});
+
+/*
+EXPLICIT REMOVE FROM WISHLIST (Used during checkout)
+DELETE /api/auth/wishlist/:propertyId
+*/
+router.delete("/wishlist/:propertyId", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const { propertyId } = req.params;
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Safely remove the ID if it exists
+    user.wishlist = user.wishlist.filter(id => id !== propertyId);
+    await user.save();
+    
+    res.json(user.wishlist);
+  } catch (error) {
+    res.status(500).json({ message: "Server error removing from wishlist" });
   }
 });
 

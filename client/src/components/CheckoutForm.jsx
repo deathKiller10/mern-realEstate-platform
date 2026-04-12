@@ -66,6 +66,15 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
           navigate("/my-bookings");
           if (!updateRes.ok) throw new Error("Payment succeeded but failed to update booking status.");
 
+          try {
+            await fetch(`http://localhost:5000/api/auth/wishlist/${propertyId}`, {
+              method: "DELETE",
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+          } catch (wishlistErr) {
+            console.log("Non-critical: Could not scrub from wishlist", wishlistErr);
+          }
+
           // 4. Update UI state
           setSuccess(true);
           setIsProcessing(false);

@@ -96,24 +96,35 @@ function Wishlist() {
                   key={item._id}
                   className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden"
                 >
-                  {/* Property Image */}
+                  {/* Property Image with Conditional Overlay */}
                   <div className="relative h-48 bg-gradient-to-br from-blue-500 to-blue-600">
-                    {/* Add the image tag back in! */}
                     <img 
                       src={
-                        item.images?.[0] 
+                        item.images?.[0]
                           ? `http://localhost:5000/${item.images[0].replace(/\\/g, "/")}` 
                           : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"
                       } 
                       alt={item.title} 
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className={`absolute inset-0 w-full h-full object-cover ${item.status === 'sold' ? 'grayscale opacity-60' : ''}`}
                       onError={(e) => { 
-                        e.target.onerror = null; 
+                        e.target.onerror = null;
                         e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"; 
                       }} 
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                  </div> {/* 👈 THIS WAS THE MISSING CLOSING DIV! */}
+                    
+                    {/* NEW: SOLD OUT BADGE */}
+                    {item.status === 'sold' && (
+                      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex flex-col items-center justify-center z-10">
+                        <div className="bg-red-600 text-white font-black text-xl px-6 py-2 rounded-lg border-2 border-white/50 tracking-widest transform -rotate-12 shadow-2xl">
+                          SOLD OUT
+                        </div>
+                        <p className="text-white text-xs mt-2 font-medium bg-black/50 px-3 py-1 rounded-full">
+                          No longer available
+                        </p>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Property Details */}
                   <div className="p-5">
@@ -153,11 +164,16 @@ function Wishlist() {
                     {/* Action Buttons */}
                     <div className="flex gap-3">
                       <NavLink
-                        to={`/property/${item._id}`}
-                        className="flex-1 text-center bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-all duration-200 font-medium text-sm flex items-center justify-center gap-2 group/link"
+                        to={item.status === 'sold' ? '#' : `/property/${item._id}`}
+                        onClick={(e) => { if (item.status === 'sold') e.preventDefault(); }}
+                        className={`flex-1 text-center px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm flex items-center justify-center gap-2 group/link ${
+                          item.status === 'sold' 
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                            : 'bg-slate-900 text-white hover:bg-slate-800'
+                        }`}
                       >
-                        <span>View Details</span>
-                        <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                        <span>{item.status === 'sold' ? 'Unavailable' : 'View Details'}</span>
+                        {item.status !== 'sold' && <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />}
                       </NavLink>
                       <button
                         onClick={() => removeFromWishlist(item._id)}

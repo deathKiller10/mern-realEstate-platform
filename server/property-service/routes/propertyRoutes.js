@@ -175,6 +175,13 @@ router.get("/my-properties", authMiddleware, allowRoles("owner"), async (req, re
 router.patch("/book", authMiddleware, async (req, res) => {
     const { propertyId, buyerEmail } = req.body;
     try {
+        const userCheck = await fetch(`http://localhost:5001/api/auth/user/${req.user.id}`);
+        if (userCheck.ok) {
+            const userData = await userCheck.json();
+            if (userData.isBlocked) {
+                return res.status(403).json({ message: "Action denied. Your account is currently suspended." });
+            }
+        }
         await Property.findByIdAndUpdate(propertyId, { $set: { status: "sold", buyer: buyerEmail } });
         if (redisClient) await redisClient.del("all_properties"); // Clear cache
         res.status(200).json({ message: "Success" });
