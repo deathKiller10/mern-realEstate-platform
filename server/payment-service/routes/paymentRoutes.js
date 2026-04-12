@@ -1,4 +1,5 @@
 const express = require('express');
+const { publishPaymentSuccess } = require("../config/rabbitmq");
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
@@ -7,10 +8,18 @@ router.post('/create-intent', async (req, res) => {
     const { amount, currency, userEmail, propertyId } = req.body;
 
     try {
+        
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(amount * 100), 
             currency: currency || 'inr',
             metadata: { userEmail, propertyId }
+        });
+
+        publishPaymentSuccess({
+            propertyId,
+            buyerEmail: userEmail,
+            amount: amount,
+            status: "INTENT_CREATED"
         });
 
         console.log(`✅ Intent created for ₹${amount}`);
