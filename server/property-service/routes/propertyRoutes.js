@@ -1,3 +1,4 @@
+const { performance } = require("perf_hooks");
 const { publishEvent } = require("../config/rabbitmq");
 const express = require("express");
 const Property = require("../models/Property");
@@ -97,14 +98,24 @@ router.get("/search", async (req, res) => {
     }
 });
 
-// get all properties (NOW WITH REDIS CACHING)
+// get all properties (NOW WITH REDIS CACHING AND METRICS)
 router.get("/", async (req, res) => {
+  // ⏱️ Start the clock the moment the request hits the route
+  const startTime = performance.now();
+
   try {
     // 1. Check if we have the properties saved in Redis
     const cachedProperties = await redisClient.get("all_properties");
 
     if (cachedProperties) {
-      console.log("⚡ Serving from Redis Cache");
+      // Calculate time taken
+      const timeTaken = (performance.now() - startTime).toFixed(2);
+      console.log(`⚡ [Redis Cache HIT] Properties fetched in ${timeTaken}ms`);
+
+      // Inject custom headers for the frontend/Postman
+      res.setHeader("X-Cache-Status", "HIT");
+      res.setHeader("X-Execution-Time", `${timeTaken}ms`);
+
       // Redis stores data as strings, so we parse it back to JSON
       return res.json(JSON.parse(cachedProperties)); 
     }
@@ -128,6 +139,14 @@ router.get("/", async (req, res) => {
         return property;
       })
     );
+
+    // Calculate time taken for the DB query + stitching
+    const timeTaken = (performance.now() - startTime).toFixed(2);
+    console.log(`🐢 [MongoDB Database HIT] Properties fetched in ${timeTaken}ms`);
+
+    // Inject custom headers
+    res.setHeader("X-Cache-Status", "MISS");
+    res.setHeader("X-Execution-Time", `${timeTaken}ms`);
 
     // 3. Save the result into Redis for the next person!
     // SETEX means "Set with Expiration". We'll cache it for 3600 seconds (1 hour).

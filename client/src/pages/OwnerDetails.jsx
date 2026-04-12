@@ -1,6 +1,20 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast"; // 1. Import toast
+import { useNavigate, NavLink } from "react-router-dom";
+import toast from "react-hot-toast";
+import { 
+  Home, 
+  MapPin, 
+  IndianRupee, 
+  FileText, 
+  Tag, 
+  Upload,
+  ArrowLeft,
+  Building2,
+  Bed,
+  Square,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
 
 export default function AddProperty() {
   const navigate = useNavigate(); 
@@ -16,9 +30,9 @@ export default function AddProperty() {
   });
 
   const [photo, setPhoto] = useState(null);
-  
-  // 2. Add state to track form submission
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,7 +42,18 @@ export default function AddProperty() {
   };
 
   const handleFileChange = (e) => {
-    setPhoto(e.target.files[0]);
+    const file = e.target.files[0];
+    setPhoto(file);
+    
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPhotoPreview(null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -46,10 +71,7 @@ export default function AddProperty() {
       return;
     }
 
-    // 3. Set submitting state to true to disable the button
     setIsSubmitting(true);
-    
-    // Start a loading toast
     const toastId = toast.loading('Uploading property and image...');
 
     const submitData = new FormData();
@@ -76,7 +98,7 @@ export default function AddProperty() {
 
       if (res.ok) {
         toast.success("Property Added Successfully!", { id: toastId });
-        navigate("/ownerdashboard"); // It's usually better to send them back to their dashboard!
+        navigate("/ownerdashboard");
       } else {
         toast.error(data.message || "Failed to add property", { id: toastId });
       }
@@ -85,163 +107,341 @@ export default function AddProperty() {
       console.error(error);
       toast.error("Server error. Please try again later.", { id: toastId });
     } finally {
-      // 4. Always turn off the submitting state, even if it fails
       setIsSubmitting(false);
     }
   };
 
+  const fillDemoData = () => {
+    setFormData({
+      propertyName: "Luxury Villa with Garden View",
+      address: "123 Palm Avenue, Beverly Hills, CA",
+      price: "7500000",
+      description: "Beautiful 3 BHK villa with modern amenities, swimming pool, and landscaped garden. Close to schools and shopping centers.",
+      type: "sale",
+      status: "available",
+      bhk: "3",
+      area: "2400"
+    });
+    toast.success("Demo data filled!");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#2c3e94] py-10">
-      <div className="bg-white w-full max-w-lg p-8 rounded-xl shadow-2xl">
-        <h2 className="text-3xl font-bold text-center text-blue-900 mb-8 border-b pb-4">
-          List a New Property
-        </h2>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
+      <div className="max-w-4xl mx-auto">
         
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Property Title</label>
-            <input
-              type="text"
-              name="propertyName"
-              placeholder="e.g. Luxury Villa in Downtown"
-              value={formData.propertyName}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-          </div>
+        {/* Back Button */}
+        <NavLink 
+          to="/ownerdashboard" 
+          className="group inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Dashboard</span>
+        </NavLink>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Location / Address</label>
-            <input
-              type="text"
-              name="address"
-              placeholder="e.g. 123 Main St, Springfield"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Price (₹)</label>
-              <input
-                type="number"
-                name="price"
-                placeholder="e.g. 5000000"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Building2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Listing Type</label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
-              >
-                <option value="" disabled>Select Type</option>
-                <option value="rent">For Rent</option>
-                <option value="sale">For Sale</option>
-              </select>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900">List a New Property</h1>
+              <p className="text-gray-600 mt-1">Fill in the details below to add your property listing</p>
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Bedrooms (BHK)</label>
-              <input 
-                type="number" 
-                name="bhk" 
-                value={formData.bhk}
-                onChange={handleChange}
-                placeholder="e.g. 3" 
-                required 
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
+        {/* Main Form Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          
+          {/* Form Header with Demo Button */}
+          <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span className="text-sm text-gray-700 font-medium">All fields are required</span>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Area (sq ft)</label>
-              <input 
-                type="number" 
-                name="area" 
-                value={formData.area}
-                onChange={handleChange}
-                placeholder="e.g. 1200" 
-                required 
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Property Description</label>
-            <textarea
-              name="description"
-              rows="4"
-              placeholder="Describe the key features of your property..."
-              value={formData.description}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Current Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
+            <button
+              type="button"
+              onClick={fillDemoData}
+              className="text-sm px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-blue-600 font-medium border border-gray-200 hover:border-blue-300"
             >
-              <option value="" disabled>Select Status</option>
-              <option value="available">Available</option>
-              <option value="sold">Sold</option>
-              <option value="rented">Rented</option>
-            </select>
+              ✨ Fill Demo Data
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Property Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              name="filetoupload"
-              onChange={handleFileChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="p-6 md:p-8">
+            <div className="space-y-6">
+              
+              {/* Property Title */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Property Title
+                </label>
+                <div className={`relative transition-all duration-200 ${
+                  focusedField === 'propertyName' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                }`}>
+                  <Home className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                    focusedField === 'propertyName' ? 'text-green-500' : 'text-gray-400'
+                  }`} />
+                  <input
+                    type="text"
+                    name="propertyName"
+                    placeholder="e.g. Luxury Villa in Downtown"
+                    value={formData.propertyName}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('propertyName')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                  />
+                </div>
+              </div>
 
-          {/* 5. Update the button to use the isSubmitting state */}
-          <button
-            type="submit"
-            disabled={isSubmitting} // Disable when true
-            className={`w-full py-4 rounded-lg font-bold text-lg shadow-md transition-all duration-300 mt-6 ${
-              isSubmitting 
-                ? "bg-gray-400 cursor-not-allowed text-gray-200" 
-                : "bg-green-600 hover:bg-green-700 hover:shadow-lg text-white"
-            }`}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Uploading Details...
-              </span>
-            ) : "List Property"}
-          </button>
-        </form>
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Location / Address
+                </label>
+                <div className={`relative transition-all duration-200 ${
+                  focusedField === 'address' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                }`}>
+                  <MapPin className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                    focusedField === 'address' ? 'text-green-500' : 'text-gray-400'
+                  }`} />
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder="e.g. 123 Main St, Springfield"
+                    value={formData.address}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('address')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Price & Type Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Price (₹)
+                  </label>
+                  <div className={`relative transition-all duration-200 ${
+                    focusedField === 'price' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                  }`}>
+                    <IndianRupee className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'price' ? 'text-green-500' : 'text-gray-400'
+                    }`} />
+                    <input
+                      type="number"
+                      name="price"
+                      placeholder="e.g. 5000000"
+                      value={formData.price}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('price')}
+                      onBlur={() => setFocusedField(null)}
+                      required
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Listing Type
+                  </label>
+                  <div className={`relative transition-all duration-200 ${
+                    focusedField === 'type' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                  }`}>
+                    <Tag className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'type' ? 'text-green-500' : 'text-gray-400'
+                    }`} />
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('type')}
+                      onBlur={() => setFocusedField(null)}
+                      required
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Select Type</option>
+                      <option value="rent">For Rent</option>
+                      <option value="sale">For Sale</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* BHK & Area Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Bedrooms (BHK)
+                  </label>
+                  <div className={`relative transition-all duration-200 ${
+                    focusedField === 'bhk' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                  }`}>
+                    <Bed className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'bhk' ? 'text-green-500' : 'text-gray-400'
+                    }`} />
+                    <input 
+                      type="number" 
+                      name="bhk" 
+                      value={formData.bhk}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('bhk')}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="e.g. 3" 
+                      required 
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Area (sq ft)
+                  </label>
+                  <div className={`relative transition-all duration-200 ${
+                    focusedField === 'area' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                  }`}>
+                    <Square className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                      focusedField === 'area' ? 'text-green-500' : 'text-gray-400'
+                    }`} />
+                    <input 
+                      type="number" 
+                      name="area" 
+                      value={formData.area}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('area')}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="e.g. 1200" 
+                      required 
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Property Description
+                </label>
+                <div className={`relative transition-all duration-200 ${
+                  focusedField === 'description' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                }`}>
+                  <FileText className={`absolute left-4 top-4 w-5 h-5 transition-colors ${
+                    focusedField === 'description' ? 'text-green-500' : 'text-gray-400'
+                  }`} />
+                  <textarea
+                    name="description"
+                    rows="4"
+                    placeholder="Describe the key features of your property..."
+                    value={formData.description}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('description')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Current Status
+                </label>
+                <div className={`relative transition-all duration-200 ${
+                  focusedField === 'status' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                }`}>
+                  <AlertCircle className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
+                    focusedField === 'status' ? 'text-green-500' : 'text-gray-400'
+                  }`} />
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('status')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Select Status</option>
+                    <option value="available">Available</option>
+                    <option value="sold">Sold</option>
+                    <option value="rented">Rented</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Property Image
+                </label>
+                <div className={`relative transition-all duration-200 ${
+                  focusedField === 'photo' ? 'ring-2 ring-green-400 rounded-xl' : ''
+                }`}>
+                  <Upload className={`absolute left-4 top-4 w-5 h-5 transition-colors ${
+                    focusedField === 'photo' ? 'text-green-500' : 'text-gray-400'
+                  }`} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    name="filetoupload"
+                    onChange={handleFileChange}
+                    onFocus={() => setFocusedField('photo')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer"
+                  />
+                </div>
+                
+                {/* Image Preview */}
+                {photoPreview && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Image Preview:</p>
+                    <div className="relative w-40 h-40 rounded-xl overflow-hidden border-2 border-gray-200">
+                      <img 
+                        src={photoPreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full relative group bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl ${
+                  isSubmitting 
+                    ? "opacity-75 cursor-not-allowed" 
+                    : "hover:from-green-600 hover:to-emerald-700"
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Uploading Property...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5" />
+                      <span>List Property</span>
+                    </>
+                  )}
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,37 +1,3 @@
-// import { useLocation } from "react-router-dom";
-// import { loadStripe } from "@stripe/stripe-js";
-// import { Elements } from "@stripe/react-stripe-js";
-// import CheckoutForm from "../components/CheckoutForm";
-
-// // Replace with your actual Publishable Key from Stripe Dashboard
-// const stripePromise = loadStripe("pk_test_51TIC8fDKUrXEjgp1FHp2bReDVhZmNKouHBP4dWamNP3m7bUKI02EblYtjIUcUBCgSLEAtmwOf0n5k7IFfLpwUB7G00WFMpGTTq");
-
-// export default function PaymentPage() {
-//   const location = useLocation();
-//   const { amount, propertyId } = location.state || {};
-//   const title = location.state?.title || "Property";
-
-//   const user = JSON.parse(localStorage.getItem("user"));
-//   const userEmail = user?.email;
-
-//   return (
-//     <div style={{ padding: "50px", textAlign: "center" }}>
-//       <h1>Payment for {title}</h1>
-//       <p>Total Amount: ₹{amount?.toLocaleString()}</p>
-      
-//       <Elements stripe={stripePromise}>
-//         {/* --- 2. PASS THE EMAIL PROP HERE --- */}
-//         <CheckoutForm 
-//           amount={amount} 
-//           propertyId={propertyId} 
-//           userEmail={userEmail} 
-//         />
-//       </Elements>
-//     </div>
-//   );
-// }
-
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -62,10 +28,11 @@ export default function PaymentPage() {
   const user = JSON.parse(localStorage.getItem("user"));
   const userEmail = user?.email;
 
-  // Calculate fees and totals
-  const processingFee = amount ? Math.round(amount * 0.02) : 0;
-  const gst = amount ? Math.round(amount * 0.18) : 0;
-  const totalAmount = amount ? amount + processingFee + gst : 0;
+  const propertyPrice = amount || 0;
+  const tokenAmount = Math.round(propertyPrice * 0.01); 
+  const convenienceFee = 999; 
+  const gst = Math.round(convenienceFee * 0.18); 
+  const totalAmount = tokenAmount + convenienceFee + gst;
 
   if (!amount || !propertyId) {
     return (
@@ -178,16 +145,24 @@ export default function PaymentPage() {
                 {/* Price Breakdown */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                    <span className="text-gray-600">Property Price</span>
-                    <span className="font-semibold text-gray-900 flex items-center">
+                    <span className="text-gray-500 text-sm">Property Value</span>
+                    <span className="font-medium text-gray-500 flex items-center text-sm">
+                      <IndianRupee className="w-3 h-3" />
+                      {propertyPrice.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                    <span className="text-gray-800 font-semibold">Booking Token (1%)</span>
+                    <span className="font-bold text-gray-900 flex items-center">
                       <IndianRupee className="w-4 h-4" />
-                      {amount?.toLocaleString()}
+                      {tokenAmount.toLocaleString()}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center pb-4 border-b border-gray-100">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600">Processing Fee</span>
+                      <span className="text-gray-600">Convenience Fee</span>
                       <button
                         onClick={() => setShowSecurityInfo(!showSecurityInfo)}
                         className="text-blue-600 hover:text-blue-700"
@@ -197,18 +172,18 @@ export default function PaymentPage() {
                     </div>
                     <span className="font-semibold text-gray-900 flex items-center">
                       <IndianRupee className="w-4 h-4" />
-                      {processingFee.toLocaleString()}
+                      {convenienceFee.toLocaleString()}
                     </span>
                   </div>
 
                   {showSecurityInfo && (
                     <div className="bg-blue-50 p-3 rounded-lg text-xs text-gray-700 mb-2">
-                      Processing fee includes payment gateway charges and platform maintenance.
+                      Non-refundable platform fee for secure processing, legal documentation, and broker matching.
                     </div>
                   )}
 
                   <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                    <span className="text-gray-600">GST (18%)</span>
+                    <span className="text-gray-600">GST (18% on fee)</span>
                     <span className="font-semibold text-gray-900 flex items-center">
                       <IndianRupee className="w-4 h-4" />
                       {gst.toLocaleString()}
@@ -216,7 +191,7 @@ export default function PaymentPage() {
                   </div>
 
                   <div className="flex justify-between items-center pt-2">
-                    <span className="text-lg font-bold text-gray-900">Total Amount</span>
+                    <span className="text-lg font-bold text-gray-900">Total Payable Now</span>
                     <span className="text-2xl font-bold text-green-600 flex items-center">
                       <IndianRupee className="w-5 h-5" />
                       {totalAmount.toLocaleString()}

@@ -1,6 +1,7 @@
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 
 const CheckoutForm = ({ amount, propertyId, userEmail}) => {
   const stripe = useStripe();
@@ -27,7 +28,7 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          amount: Number(15000),
+          amount: amount,
           currency: "inr",
           propertyId: propertyId,
           buyerEmail:userEmail
@@ -63,7 +64,7 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
             buyerEmail: userEmail // <-- Ensure 'userEmail' actually has a value here!
             }),
           });
-          navigate("/my-bookings");
+          // navigate("/my-bookings");
           if (!updateRes.ok) throw new Error("Payment succeeded but failed to update booking status.");
 
           try {
@@ -94,11 +95,25 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
     }
   };
 
+  // If payment is successful, show this screen with the Green Tick
   if (success) {
     return (
-      <div className="text-center p-10">
-        <h2 className="text-2xl font-bold text-green-600 mb-2">Payment Successful!</h2>
-        <p className="text-gray-600">Thank you for your purchase. Redirecting you home...</p>
+      <div className="flex flex-col items-center justify-center py-12 px-4 text-center animate-in fade-in duration-500">
+        {/* The Animated Green Tick */}
+        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border-4 border-green-50 transition-all transform hover:scale-105">
+          <CheckCircle className="w-12 h-12 text-green-600" />
+        </div>
+        
+        <h2 className="text-3xl font-bold text-slate-900 mb-2">Payment Successful!</h2>
+        <p className="text-lg text-gray-600 mb-8">
+          Congratulations! The property has been successfully booked.
+        </p>
+        
+        {/* Loading spinner for the redirect */}
+        <div className="flex items-center justify-center gap-3 text-sm font-medium text-gray-500">
+          <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+          Redirecting to your bookings...
+        </div>
       </div>
     );
   }
