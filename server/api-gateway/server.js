@@ -9,7 +9,7 @@ app.use(cors());
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per 15 minutes
+  max: 20, // Limit each IP to 100 requests per 15 minutes
   message: { 
     message: "Too many requests from this IP. Please try again in 15 minutes." 
   },
@@ -17,7 +17,7 @@ const apiLimiter = rateLimit({
   legacyHeaders: false, // Disables legacy headers
 });
 
-app.use(apiLimiter);
+app.use("/api", apiLimiter);
 
 const preservePath = (path, req) => req.originalUrl;
 

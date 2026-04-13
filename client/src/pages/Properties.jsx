@@ -4,7 +4,7 @@ import axios from "axios";
 import { WishlistContext } from "../context/WishlistContext";
 import { AuthContext } from "../context/Authcontext";
 import PropertySkeleton from "../components/PropertySkeleton";
-import toast from "react-hot-toast"; // 👈 FIXED: Added toast import for the wishlist popup!
+import toast from "react-hot-toast"; 
 
 export default function Properties() {
   const [properties, setProperties] = useState([]);
@@ -38,7 +38,16 @@ export default function Properties() {
         const res = await axios.get("http://localhost:5000/api/properties");
         setProperties(res.data);
       } catch (error) {
-        console.error("Failed to load properties");
+        // 🛡️ THE DEFENSIVE CATCH: Intercept the Rate Limit Error via Axios
+        if (error.response && error.response.status === 429) {
+          toast.error("Too many requests! Please wait a moment before trying again.", {
+            icon: '🛑',
+            duration: 4000,
+          });
+        } else {
+          console.error("Failed to load properties", error);
+          toast.error("Failed to load properties. Server connection issue.");
+        }
       } finally {
         setLoading(false);
       }
@@ -63,7 +72,6 @@ export default function Properties() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 min-h-[70vh]">
-    {/* // <div className="w-full p-4 md:p-6 min-h-[70vh]"> */}
       <h1 className="text-3xl font-bold text-blue-900 mb-6">Browse Properties</h1>
 
       {/* Top Search Bar */}
