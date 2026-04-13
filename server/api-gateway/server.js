@@ -1,13 +1,24 @@
 const express = require("express");
 const cors = require("cors");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 
 app.use(cors());
 
-// THE FIX: This helper function stops Express from stripping the base path!
-// It forces the proxy to forward the exact, original URL (including queries).
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per 15 minutes
+  message: { 
+    message: "Too many requests from this IP. Please try again in 15 minutes." 
+  },
+  standardHeaders: true, // Returns rate limit info in the headers
+  legacyHeaders: false, // Disables legacy headers
+});
+
+app.use(apiLimiter);
+
 const preservePath = (path, req) => req.originalUrl;
 
 // --- 1. Route to User Service (Port 5001) ---
