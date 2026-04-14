@@ -16,6 +16,8 @@ connectRabbitMQ();
 app.use('/', paymentRoutes); 
 
 const PORT = process.env.PORT || 5004;
-app.listen(PORT, () => {
+
+// 🚨 FIXED: Added "0.0.0.0" so Google Cloud can bind to it
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚦 Payment Service running on port ${PORT}`);
 });

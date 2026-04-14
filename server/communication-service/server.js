@@ -23,8 +23,9 @@ app.use(express.json());
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/messages", messageRoutes);
 
-const PORT = process.env.PORT || 5003; // Port 5003 for Communication Service
+const PORT = process.env.PORT || 5003; 
 
-app.listen(PORT, () => {
+// 🚨 FIXED: Added "0.0.0.0" so Google Cloud can bind to it
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Communication Service running on port ${PORT}`);
 });

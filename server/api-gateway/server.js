@@ -9,66 +9,60 @@ app.use(cors());
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Limit each IP to 100 requests per 15 minutes
+  max: 100, // Limit each IP to 20 requests per 15 minutes
   message: { 
     message: "Too many requests from this IP. Please try again in 15 minutes." 
   },
-  standardHeaders: true, // Returns rate limit info in the headers
-  legacyHeaders: false, // Disables legacy headers
+  standardHeaders: true, 
+  legacyHeaders: false, 
 });
 
 app.use("/api", apiLimiter);
 
 const preservePath = (path, req) => req.originalUrl;
 
-// --- 1. Route to User Service (Port 5001) ---
+// --- 1. Route to User Service ---
 app.use("/api/auth", createProxyMiddleware({ 
-  target: "http://localhost:5001", 
+  target: process.env.USER_SERVICE_URL, // 👈 Now dynamic!
   changeOrigin: true,
   pathRewrite: preservePath 
 }));
 app.use("/api/admin", createProxyMiddleware({ 
-  target: "http://localhost:5001", 
+  target: process.env.USER_SERVICE_URL, 
   changeOrigin: true,
   pathRewrite: preservePath 
 }));
 
-// --- 2. Route to Property Service (Port 5002) ---
+// --- 2. Route to Property Service ---
 app.use("/api/properties", createProxyMiddleware({ 
-  target: "http://localhost:5002", 
-  changeOrigin: true,
-  pathRewrite: preservePath 
-}));
-// Don't forget to forward image requests so the frontend can display them!
-app.use("/uploads", createProxyMiddleware({ 
-  target: "http://localhost:5002", 
+  target: process.env.PROPERTY_SERVICE_URL, 
   changeOrigin: true,
   pathRewrite: preservePath 
 }));
 
-// --- 3. Route to Communication Service (Port 5003) ---
+// --- 3. Route to Communication Service ---
 app.use("/api/inquiries", createProxyMiddleware({ 
-  target: "http://localhost:5003", 
+  target: process.env.COMMUNICATION_SERVICE_URL, 
   changeOrigin: true,
   pathRewrite: preservePath 
 }));
 app.use("/api/messages", createProxyMiddleware({ 
-  target: "http://localhost:5003", 
+  target: process.env.COMMUNICATION_SERVICE_URL, 
   changeOrigin: true,
   pathRewrite: preservePath 
 }));
-// --- 4. Payment Service (Port 5004) ---
-// UPDATED: Now using createProxyMiddleware for consistency
+
+// --- 4. Route to Payment Service ---
 app.use("/api/payment", createProxyMiddleware({ 
-  target: "http://localhost:5004", 
+  target: process.env.PAYMENT_SERVICE_URL, 
   changeOrigin: true,
   pathRewrite: (path) => path.replace(/^\/api\/payment/, "") 
-  // 💡 Note: We replace the prefix because your Payment server.js 
-  // is likely listening for "/create-intent" directly.
 }));
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`🚦 API Gateway running on http://localhost:${PORT}`);
-  console.log(`   -> Paths are strictly preserved for microservice routing.`);
+// 🚨 FIXED: Added "0.0.0.0" so Google Cloud can bind to it
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚦 API Gateway running on port ${PORT}`);
+  console.log(`   -> Traffic routing to Live Cloud Run Services.`);
 });

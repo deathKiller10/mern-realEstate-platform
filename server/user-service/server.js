@@ -45,6 +45,6 @@ app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5001; // Port 5001 for User Service
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`User Service running on port ${PORT}`);
 });
