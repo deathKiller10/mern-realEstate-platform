@@ -1,221 +1,3 @@
-// import { useEffect, useState, useContext } from "react";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { WishlistContext } from "../context/WishlistContext";
-// import { AuthContext } from "../context/Authcontext";
-// import PropertySkeleton from "../components/PropertySkeleton";
-// import toast from "react-hot-toast"; 
-
-// export default function Properties() {
-//   const [properties, setProperties] = useState([]);
-//   const [loading, setLoading] = useState(true);
-  
-//   // ALL YOUR FILTER STATES
-//   const [search, setSearch] = useState("");
-//   const [filterType, setFilterType] = useState("all"); 
-//   const [maxPrice, setMaxPrice] = useState(""); 
-//   const [bhk, setBhk] = useState("all"); 
-//   const [minArea, setMinArea] = useState("");
-  
-//   const navigate = useNavigate();
-//   const { addToWishlist } = useContext(WishlistContext);
-//   const { user } = useContext(AuthContext);
-
-//   const handleBuyNow = (item) => {
-//     navigate("/payment", { 
-//       state: { 
-//         amount: item.price,
-//         title: item.title,
-//         propertyId: item._id
-//       } 
-//     });
-//   };
-
-//   useEffect(() => {
-//     const fetchProperties = async () => {
-//       setLoading(true);
-//       try {
-//         const res = await axios.get("http://localhost:5000/api/properties");
-//         setProperties(res.data);
-//       } catch (error) {
-//         // 🛡️ THE DEFENSIVE CATCH: Intercept the Rate Limit Error via Axios
-//         if (error.response && error.response.status === 429) {
-//           toast.error("Too many requests! Please wait a moment before trying again.", {
-//             icon: '🛑',
-//             duration: 4000,
-//           });
-//         } else {
-//           console.error("Failed to load properties", error);
-//           toast.error("Failed to load properties. Server connection issue.");
-//         }
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchProperties();
-//   }, []);
-
-//   // THE MASTER FILTER FUNCTION
-//   const filteredProperties = properties.filter((p) => {
-//     const isAvailable = p.isBooked !== true || p.status !== "sold";
-//     const matchesSearch = 
-//       p.location.toLowerCase().includes(search.toLowerCase()) ||
-//       p.title.toLowerCase().includes(search.toLowerCase());
-      
-//     const matchesType = filterType === "all" || p.type === filterType;
-//     const matchesPrice = maxPrice === "" || p.price <= parseInt(maxPrice);
-//     const matchesBhk = bhk === "all" || p.bhk === parseInt(bhk);
-//     const matchesArea = minArea === "" || p.area >= parseInt(minArea);
-
-//     return isAvailable && matchesSearch && matchesType && matchesPrice && matchesBhk && matchesArea;
-//   });
-
-//   return (
-//     <div className="max-w-7xl mx-auto p-4 md:p-6 min-h-[70vh]">
-//       <h1 className="text-3xl font-bold text-blue-900 mb-6">Browse Properties</h1>
-
-//       {/* Top Search Bar */}
-//       <input 
-//         type="text"
-//         placeholder="Search by location or title..."
-//         value={search}
-//         onChange={(e) => setSearch(e.target.value)}
-//         className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-8 shadow-sm"
-//       />
-
-//       <div className="flex flex-col md:flex-row gap-8">
-        
-//         {/* === LEFT SIDEBAR FILTERS === */}
-//         <div className="w-full md:w-1/4 bg-white p-6 rounded-xl shadow-md border h-fit sticky top-4">
-//           <h2 className="text-xl font-bold mb-4 border-b pb-2">Filters</h2>
-          
-//           <div className="mb-6">
-//             <label className="block text-gray-700 font-semibold mb-2">Property Type</label>
-//             <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full p-2 border rounded focus:outline-none focus:border-blue-500">
-//               <option value="all">All Properties</option>
-//               <option value="rent">For Rent</option>
-//               <option value="sale">For Sale</option>
-//             </select>
-//           </div>
-
-//           <div className="mb-6">
-//             <label className="block text-gray-700 font-semibold mb-2">Max Price (₹)</label>
-//             <input type="number" placeholder="e.g. 50000" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-full p-2 border rounded focus:outline-none focus:border-blue-500" />
-//           </div>
-
-//           <div className="mb-6">
-//             <label className="block text-gray-700 font-semibold mb-2">Bedrooms (BHK)</label>
-//             <select value={bhk} onChange={(e) => setBhk(e.target.value)} className="w-full p-2 border rounded focus:outline-none focus:border-blue-500">
-//               <option value="all">Any BHK</option>
-//               <option value="1">1 BHK</option>
-//               <option value="2">2 BHK</option>
-//               <option value="3">3 BHK</option>
-//               <option value="4">4 BHK</option>
-//               <option value="5">5+ BHK</option>
-//             </select>
-//           </div>
-
-//           <div className="mb-6">
-//             <label className="block text-gray-700 font-semibold mb-2">Min. Area (sq ft)</label>
-//             <input type="number" placeholder="e.g. 1000" value={minArea} onChange={(e) => setMinArea(e.target.value)} className="w-full p-2 border rounded focus:outline-none focus:border-blue-500" />
-//           </div>
-          
-//           <button 
-//             onClick={() => { setSearch(""); setFilterType("all"); setMaxPrice(""); setBhk("all"); setMinArea(""); }}
-//             className="w-full text-blue-600 hover:text-blue-800 text-sm font-semibold underline mt-2"
-//           >
-//             Clear All Filters
-//           </button>
-//         </div>
-
-//         {/* === RIGHT SIDE: PROPERTIES GRID === */}
-//         <div className="w-full md:w-3/4">
-//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-//             {loading ? (
-//               <>
-//                 <PropertySkeleton />
-//                 <PropertySkeleton />
-//                 <PropertySkeleton />
-//                 <PropertySkeleton />
-//                 <PropertySkeleton />
-//                 <PropertySkeleton />
-//               </>
-//             ) : filteredProperties.length > 0 ? (
-//               filteredProperties.map((item) => (
-//                 <div key={item._id} className="bg-white rounded-xl shadow-md overflow-hidden border">
-//                   <img
-//                     src={
-//                       item.images?.[0] 
-//                         ? `http://localhost:5000/${item.images[0].replace(/^\/+/, '')}` 
-//                         : "https://via.placeholder.com/400x200?text=No+Image"
-//                     }
-//                     alt={item.title}
-//                     className="w-full h-40 object-cover"
-//                     onError={(e) => { 
-//                       if (!e.target.dataset.triedDirect) {
-//                           e.target.dataset.triedDirect = "true";
-//                           e.target.src = `http://localhost:5002/${item.images?.[0]}`;
-//                       } else {
-//                           e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400";
-//                       }
-//                     }}
-//                   />
-//                   <div className="p-4">
-//                     <h3 className="font-bold text-lg truncate mb-1">{item.title}</h3>
-//                     <p className="text-gray-500 text-sm mb-2"> {item.location}</p>
-//                     <p className="text-blue-600 font-bold text-lg mb-4">₹ {item.price.toLocaleString("en-IN")}</p>
-                    
-//                     {/* Add to Wishlist Button (Visible to guests and buyers) */}
-//                     {(!user || user.role === "buyer") && (
-//                       <button
-//                         onClick={() => {
-//                           if (!user) {
-//                             toast.error("Please login first to save properties!");
-//                             return;
-//                           }
-//                           addToWishlist(item);
-//                         }}
-//                         className="bg-red-500 text-white px-3 py-1 rounded mb-3 w-full hover:bg-red-600 transition"
-//                       >
-//                         Add to Wishlist
-//                       </button>
-//                     )}
-
-//                     {/* 🔒 FIXED: Buy Now Button (Visible ONLY to logged-in buyers) */}
-//                     {user?.role === "buyer" && (
-//                       <button 
-//                         onClick={() => handleBuyNow(item)} 
-//                         className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-semibold mb-2 transition"
-//                       >
-//                         Buy Now
-//                       </button>
-//                     )}
-
-//                     <button 
-//                       onClick={() => navigate(`/property/${item._id}`)}
-//                       className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold transition"
-//                     >
-//                       View Details
-//                     </button>
-//                   </div>
-//                 </div>
-//               ))
-//             ) : (
-//               <div className="col-span-full text-center py-20 bg-gray-50 rounded-xl border border-dashed">
-//                 <p className="text-gray-500 text-lg">No properties match your current filters.</p>
-//               </div>
-//             )}
-            
-//           </div>
-//         </div>
-
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -252,7 +34,7 @@ export default function Properties() {
     const fetchProperties = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("http://localhost:5000/api/properties");
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/properties`);
         setProperties(res.data);
       } catch (error) {
         if (error.response && error.response.status === 429) {
@@ -356,24 +138,18 @@ export default function Properties() {
             ) : filteredProperties.length > 0 ? (
               filteredProperties.map((item) => (
                 <div key={item._id} className="bg-white rounded-xl shadow-md overflow-hidden border">
-                  <img
+                  <img 
                     src={
-                      item.images?.[0]
-                        ? item.images[0].startsWith("http")
-                          ? item.images[0]
-                          : `http://localhost:5000/${item.images[0].replace(/^\/+/, '')}`
-                        : "https://via.placeholder.com/400x200?text=No+Image"
-                    }
-                    alt={item.title}
-                    className="w-full h-40 object-cover"
+                      item.images?.[0] 
+                        ? item.images[0] 
+                        : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"
+                    } 
+                    alt={item.title} 
+                    className="w-full h-40 object-cover" 
                     onError={(e) => { 
-                      if (!e.target.dataset.triedDirect) {
-                          e.target.dataset.triedDirect = "true";
-                          e.target.src = `http://localhost:5002/${item.images?.[0]}`;
-                      } else {
-                          e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400";
-                      }
-                    }}
+                      e.target.onerror = null; 
+                      e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"; 
+                    }} 
                   />
                   <div className="p-4">
                     <h3 className="font-bold text-lg truncate mb-1">{item.title}</h3>

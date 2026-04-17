@@ -24,7 +24,7 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
 
     try {
       // 1. Request Secret from Backend (via API Gateway)
-      const response = await fetch("http://localhost:5000/api/payment/create-intent", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/create-intent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -56,7 +56,7 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
         try {
           // 3. Update the Property status in the database
           const token = localStorage.getItem("token");
-          const updateRes = await fetch("http://localhost:5000/api/properties/book", {
+          const updateRes = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/book`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ 
@@ -68,7 +68,7 @@ const CheckoutForm = ({ amount, propertyId, userEmail}) => {
           if (!updateRes.ok) throw new Error("Payment succeeded but failed to update booking status.");
 
           try {
-            await fetch(`http://localhost:5000/api/auth/wishlist/${propertyId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/auth/wishlist/${propertyId}`, {
               method: "DELETE",
               headers: { "Authorization": `Bearer ${token}` }
             });

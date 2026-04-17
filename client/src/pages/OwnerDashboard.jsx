@@ -11,7 +11,7 @@ export default function OwnerDashboard() {
   const fetchProperties = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/properties/my-properties", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/properties/my-properties`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMyProperties(res.data);
@@ -35,7 +35,7 @@ export default function OwnerDashboard() {
     
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/properties/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/properties/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -52,7 +52,7 @@ export default function OwnerDashboard() {
     
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`http://localhost:5000/api/properties/${id}/status`, { status: newStatus }, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/properties/${id}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -114,18 +114,15 @@ export default function OwnerDashboard() {
           {myProperties.map((item) => (
             <div key={item._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden border">
               <img 
-                // 1. Fix Windows backslashes (\) by converting them to forward slashes (/)
                 src={
                   item.images?.[0] 
-                    ? `http://localhost:5000/${item.images[0].replace(/\\/g, "/")}` 
+                    ? item.images[0] 
                     : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"
                 } 
                 alt={item.title} 
                 className="w-full h-48 object-cover bg-gray-100" 
                 onError={(e) => { 
-                  // 2. CRITICAL: Nullify the error handler so it can NEVER infinite loop
                   e.target.onerror = null; 
-                  // 3. Use a highly reliable fallback image instead of placeholder.com
                   e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"; 
                 }} 
               />

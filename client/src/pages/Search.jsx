@@ -27,7 +27,7 @@ function Search() {
     setLoading(true); // Start loading
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/properties/search?query=${query}`
+        `${import.meta.env.VITE_API_URL}/api/properties/search?query=${query}`
       );
       setResults(res.data);
     } catch (err) {
@@ -65,10 +65,17 @@ function Search() {
               className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
             >
               <img
-                src={`http://localhost:5000/${item.images?.[0]}`}
+                src={
+                  item.images?.[0] 
+                    ? item.images[0] 
+                    : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"
+                }
                 alt={item.title}
                 className="w-full h-44 object-cover"
-                onError={(e) => { e.target.src = "https://via.placeholder.com/400x200?text=No+Image+Available" }} 
+                onError={(e) => { 
+                  e.target.onerror = null; 
+                  e.target.src = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400"; 
+                }} 
               />
 
               <div className="p-4">

@@ -23,7 +23,7 @@ export function WishlistProvider({ children }) {
         const token = localStorage.getItem("token");
         
         // A. Get the array of saved Property IDs from the User Service
-        const idRes = await axios.get("http://localhost:5000/api/auth/wishlist", {
+        const idRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/wishlist`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -35,7 +35,7 @@ export function WishlistProvider({ children }) {
         }
 
         // B. Get the full property details from the Property Service
-        const detailRes = await axios.post("http://localhost:5000/api/properties/wishlist-details", {
+        const detailRes = await axios.post(`${import.meta.env.VITE_API_URL}/api/properties/wishlist-details`, {
           propertyIds: propertyIds
         });
         
@@ -73,7 +73,7 @@ export function WishlistProvider({ children }) {
     try {
       const token = localStorage.getItem("token");
       // Tell backend to add it (Toggles it on)
-      await axios.post(`http://localhost:5000/api/auth/wishlist/${property._id}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/wishlist/${property._id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
@@ -97,7 +97,7 @@ export function WishlistProvider({ children }) {
     try {
       const token = localStorage.getItem("token");
       // Tell backend to remove it (Toggles it off)
-      await axios.post(`http://localhost:5000/api/auth/wishlist/${id}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/wishlist/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {

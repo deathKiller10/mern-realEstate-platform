@@ -23,7 +23,7 @@ export default function Inbox() {
   const fetchThreads = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/messages/my-threads", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/messages/my-threads`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setThreads(res.data);
@@ -47,7 +47,7 @@ export default function Inbox() {
       const token = localStorage.getItem("token");
       const receiverId = user.role === "owner" ? activeThread.buyer._id : activeThread.owner._id;
 
-      const res = await axios.post("http://localhost:5000/api/messages/send", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/messages/send`, {
         propertyId: activeThread.property?._id || null, 
         receiverId: receiverId,
         text: replyText
@@ -101,7 +101,7 @@ export default function Inbox() {
                     setActiveThread(thread);
                     try {
                       const token = localStorage.getItem("token");
-                      await axios.patch(`http://localhost:5000/api/messages/mark-read/${thread._id}`, {}, {
+                      await axios.patch(`${import.meta.env.VITE_API_URL}/api/messages/mark-read/${thread._id}`, {}, {
                         headers: { Authorization: `Bearer ${token}` }
                       });
                       thread.messages.forEach(m => {
@@ -133,12 +133,12 @@ export default function Inbox() {
                 <div className="p-4 border-b bg-white shadow-sm flex items-center gap-4">
                    <img 
                     src={activeThread.property?.images?.[0] 
-                          ? `http://localhost:5000/${activeThread.property.images[0]}` 
+                          ? activeThread.property.images[0] 
                           : 'https://via.placeholder.com/150?text=Deleted'} 
                     className="w-12 h-12 rounded object-cover bg-gray-200"
                     alt="Property"
                     onError={(e) => e.target.style.display = 'none'}
-                   />
+                    />
                    {/* FIX: Keep text elements inside this div next to the image */}
                    <div>
                      <h3 className={`font-bold text-lg ${activeThread.property?.isDeleted ? 'text-red-500' : ''}`}>

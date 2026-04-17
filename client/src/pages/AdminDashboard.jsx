@@ -17,8 +17,8 @@ export default function AdminDashboard() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [usersRes, propRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/admin/users", { headers }),
-        axios.get("http://localhost:5000/api/properties") // Public route, no token needed to view
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, { headers }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/properties`) // Public route, no token needed to view
       ]);
 
       setUsers(usersRes.data);
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`http://localhost:5000/api/admin/block-user/${id}`, {}, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/block-user/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(users.map(u => u._id === id ? { ...u, isBlocked: true } : u));
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/admin/delete-property/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/delete-property/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProperties(properties.filter(p => p._id !== id));
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
           {properties.map(item => (
             <div key={item._id} className="bg-white rounded-xl shadow-md overflow-hidden border">
               <img
-                src={`http://localhost:5000/${item.images?.[0]}`}
+                src={item.images?.[0]}
                 alt={item.title}
                 className="w-full h-40 object-cover"
                 onError={(e) => { e.target.src = "https://via.placeholder.com/400x200?text=No+Image" }}
