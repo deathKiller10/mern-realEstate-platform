@@ -37,12 +37,11 @@ router.get("/my-inquiries", authMiddleware, allowRoles("owner"), async (req, res
     const inquiries = await Inquiry.find({ owner: req.user.id })
       .sort({ createdAt: -1 })
       .lean();
-      
-    // STITCHING: Fetch property data from Property Service (Port 5002)
+
     const inquiriesWithProperties = await Promise.all(
       inquiries.map(async (inquiry) => {
         try {
-          const propRes = await fetch(`http://localhost:5002/api/properties/${inquiry.property}`);
+          const propRes = await fetch(`${process.env.PROPERTY_SERVICE_URL}/api/properties/${inquiry.property}`);
           if (propRes.ok) {
             const propData = await propRes.json();
             inquiry.property = { 

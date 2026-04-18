@@ -27,7 +27,7 @@ router.get("/my-threads", authMiddleware, async (req, res) => {
         } else {
             // 🐢 NORMAL PATH: It's an active property, so fetch the details
             try {
-                const propRes = await fetch(`http://localhost:5002/api/properties/${thread.property}`);
+                const propRes = await fetch(`${process.env.PROPERTY_SERVICE_URL}/api/properties/${thread.property}`);
                 if (propRes.ok) {
                     const propData = await propRes.json();
                     thread.property = { 
@@ -47,7 +47,7 @@ router.get("/my-threads", authMiddleware, async (req, res) => {
 
         // 2. Fetch Buyer Data
         try {
-          const buyerRes = await fetch(`http://localhost:5001/api/auth/user/${thread.buyer}`);
+          const buyerRes = await fetch(`${process.env.USER_SERVICE_URL}/api/auth/user/${thread.buyer}`);
           if (buyerRes.ok) {
             const buyerData = await buyerRes.json();
             thread.buyer = { _id: buyerData._id, name: buyerData.name, email: buyerData.email };
@@ -56,7 +56,7 @@ router.get("/my-threads", authMiddleware, async (req, res) => {
 
         // 3. Fetch Owner Data
         try {
-          const ownerRes = await fetch(`http://localhost:5001/api/auth/user/${thread.owner}`);
+          const ownerRes = await fetch(`${process.env.USER_SERVICE_URL}/api/auth/user/${thread.owner}`);
           if (ownerRes.ok) {
             const ownerData = await ownerRes.json();
             thread.owner = { _id: ownerData._id, name: ownerData.name, email: ownerData.email };
@@ -85,7 +85,7 @@ router.post("/send", authMiddleware, async (req, res) => {
 
     // NEW: Verify the property still exists before allowing a message
     try {
-      const propCheck = await fetch(`http://localhost:5002/api/properties/${propertyId}`);
+      const propCheck = await fetch(`${process.env.PROPERTY_SERVICE_URL}/api/properties/${propertyId}`);
       if (!propCheck.ok) {
         return res.status(400).json({ message: "Cannot send message. This property has been deleted." });
       }

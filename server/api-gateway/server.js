@@ -5,7 +5,16 @@ const rateLimit = require("express-rate-limit");
 
 const app = express();
 
-app.use(cors());
+// app.use(cors());
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173', 
+    'https://mern-real-estate-platform.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true 
+}));
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

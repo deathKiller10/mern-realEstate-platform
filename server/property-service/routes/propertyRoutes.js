@@ -25,7 +25,7 @@ router.post("/", authMiddleware, allowRoles("owner"), upload.single("image"), as
         }
 
         // Format the path so it works nicely on the frontend
-        const imagePath = `uploads/${req.file.filename}`;
+        const imagePath = req.file.path;
 
         const property = new Property({
             title,
@@ -128,7 +128,7 @@ router.get("/", async (req, res) => {
     const propertiesWithOwners = await Promise.all(
       properties.map(async (property) => {
         try {
-          const userRes = await fetch(`http://localhost:5002/api/auth/user/${property.owner}`);
+          const userRes = await fetch(`${process.env.USER_SERVICE_URL}/api/auth/user/${property.owner}`);
           if (userRes.ok) {
             const userData = await userRes.json();
             property.owner = userData; 
@@ -194,7 +194,7 @@ router.get("/my-properties", authMiddleware, allowRoles("owner"), async (req, re
 router.patch("/book", authMiddleware, async (req, res) => {
     const { propertyId, buyerEmail } = req.body;
     try {
-        const userCheck = await fetch(`http://localhost:5001/api/auth/user/${req.user.id}`);
+        const userCheck = await fetch(`${process.env.USER_SERVICE_URL}/api/auth/user/${req.user.id}`);
         if (userCheck.ok) {
             const userData = await userCheck.json();
             if (userData.isBlocked) {
@@ -231,7 +231,7 @@ router.get("/:id", async (req, res) => {
 
     // Fetch the owner data for this specific property
     try {
-      const userRes = await fetch(`http://localhost:5001/api/auth/user/${property.owner}`);
+      const userRes = await fetch(`${process.env.USER_SERVICE_URL}/api/auth/user/${property.owner}`);
       if (userRes.ok) {
         const userData = await userRes.json();
         property.owner = userData;
